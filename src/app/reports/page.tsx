@@ -24,14 +24,14 @@ export default function ReportsPage() {
               </div>
 
               {/* Main Content */}
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
+              <div className="space-y-8 mb-8">
                 {/* Statistics */}
-                <div className="xl:col-span-1" id="statistics">
+                <div id="statistics">
                   <Statistics />
                 </div>
 
                 {/* Attendance Log */}
-                <div className="xl:col-span-1" id="history">
+                <div id="history">
                   <AttendanceLog />
                 </div>
               </div>

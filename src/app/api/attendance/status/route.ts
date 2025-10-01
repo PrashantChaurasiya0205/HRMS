@@ -12,7 +12,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const today = new Date().toISOString().split('T')[0];
+    // Get current date in local timezone
+    const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
     await dbConnect();
     
     const record = await Attendance.findOne({

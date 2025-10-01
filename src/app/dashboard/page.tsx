@@ -24,14 +24,14 @@ export default function DashboardPage() {
               </div>
 
               {/* Main Content */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+              <div className="space-y-8 mb-8">
                 {/* Clock Display */}
-                <div className="lg:col-span-1" id="clock">
+                <div id="clock">
                   <ClockDisplay />
                 </div>
 
                 {/* Action Buttons */}
-                <div className="lg:col-span-1" id="actions">
+                <div id="actions">
                   <ActionButtons />
                 </div>
               </div>

@@ -12,8 +12,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const today = new Date().toISOString().split('T')[0];
+    // Get current date in local timezone
     const now = new Date();
+    const today = now.toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
     await dbConnect();
     
     // Find today's attendance record
