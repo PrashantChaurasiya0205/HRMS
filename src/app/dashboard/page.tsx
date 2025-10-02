@@ -3,6 +3,7 @@
 import AppLayout from '@/components/AppLayout';
 import ClockDisplay from '@/components/ClockDisplay';
 import ActionButtons from '@/components/ActionButtons';
+import TodaysProgressOnly from '@/components/TodaysProgressOnly';
 
 export default function DashboardPage() {
   return (
@@ -24,6 +25,11 @@ export default function DashboardPage() {
           {/* Action Buttons */}
           <div id="actions">
             <ActionButtons />
+          </div>
+
+          {/* Today's Progress Only */}
+          <div id="progress">
+            <TodaysProgressOnly />
           </div>
         </div>
 

@@ -17,8 +17,8 @@ export default function Navigation() {
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
           <Link href="/dashboard" className="flex items-center">
-            <Clock className="w-8 h-8 text-blue-600 mr-2" />
-            <h1 className="text-xl font-bold text-gray-800">Attendance Monitor</h1>
+            <img src="/Gemini_Generated_Image_6dg6126dg6126dg6.png" alt="Workshant Logo" className="w-8 h-8 mr-2" />
+            <h1 className="text-xl font-bold text-gray-800">Workshant</h1>
           </Link>
 
           {/* Desktop Navigation */}

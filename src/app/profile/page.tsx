@@ -15,25 +15,49 @@ function ProfileContent() {
     experience: 0
   });
   const [profileData, setProfileData] = useState({
-    name: '',
+    firstName: '',
+    lastName: '',
     email: '',
-    department: 'Engineering',
-    position: 'Software Developer',
-    employeeId: 'EMP001',
-    joinDate: '2023-01-15',
-    phone: '+1 (555) 123-4567',
-    address: '123 Main St, City, State 12345'
+    department: '',
+    position: '',
+    employeeId: '',
+    hireDate: '',
+    phone: '',
+    address: '',
+    emergencyContact: {
+      name: '',
+      phone: '',
+      relationship: ''
+    }
   });
 
   useEffect(() => {
-    if (session?.user) {
-      setProfileData(prev => ({
-        ...prev,
-        name: session.user?.name || '',
-        email: session.user?.email || ''
-      }));
-    }
+    fetchProfile();
   }, [session]);
+
+  const fetchProfile = async () => {
+    try {
+      const response = await fetch('/api/profile');
+      if (response.ok) {
+        const data = await response.json();
+        if (data) {
+          setProfileData(data);
+        } else {
+          // Initialize with session data if no profile exists
+          if (session?.user) {
+            setProfileData(prev => ({
+              ...prev,
+              email: session.user?.email || '',
+              firstName: session.user?.name?.split(' ')[0] || '',
+              lastName: session.user?.name?.split(' ').slice(1).join(' ') || ''
+            }));
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    }
+  };
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -50,10 +74,24 @@ function ProfileContent() {
     fetchStats();
   }, []);
 
-  const handleSave = () => {
-    // Save profile data
-    alert('Profile updated successfully!');
-    setIsEditing(false);
+  const handleSave = async () => {
+    try {
+      const response = await fetch('/api/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(profileData)
+      });
+
+      if (response.ok) {
+        alert('Profile updated successfully!');
+        setIsEditing(false);
+      } else {
+        alert('Error updating profile');
+      }
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      alert('Error updating profile');
+    }
   };
 
   const handleCancel = () => {
@@ -77,7 +115,7 @@ function ProfileContent() {
                       <div className="w-24 h-24 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <User className="w-12 h-12 text-indigo-600" />
                       </div>
-                      <h2 className="text-xl font-bold text-gray-800 mb-2">{profileData.name}</h2>
+                      <h2 className="text-xl font-bold text-gray-800 mb-2">{profileData.firstName} {profileData.lastName}</h2>
                       <p className="text-gray-600 mb-4">{profileData.position}</p>
                       <div className="space-y-2 text-sm text-gray-600">
                         <div className="flex items-center justify-center">
@@ -86,7 +124,7 @@ function ProfileContent() {
                         </div>
                         <div className="flex items-center justify-center">
                           <Calendar className="w-4 h-4 mr-2" />
-                          Joined: {profileData.joinDate}
+                          Joined: {profileData.hireDate}
                         </div>
                       </div>
                     </div>
@@ -128,17 +166,33 @@ function ProfileContent() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                           <label className="block text-sm font-medium text-black mb-2">
-                            Full Name
+                            First Name
                           </label>
                           {isEditing ? (
                             <input
                               type="text"
-                              value={profileData.name}
-                              onChange={(e) => setProfileData({...profileData, name: e.target.value})}
+                              value={profileData.firstName}
+                              onChange={(e) => setProfileData({...profileData, firstName: e.target.value})}
                               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-black"
                             />
                           ) : (
-                            <p className="text-black py-3">{profileData.name}</p>
+                            <p className="text-black py-3">{profileData.firstName}</p>
+                          )}
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-black mb-2">
+                            Last Name
+                          </label>
+                          {isEditing ? (
+                            <input
+                              type="text"
+                              value={profileData.lastName}
+                              onChange={(e) => setProfileData({...profileData, lastName: e.target.value})}
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-black"
+                            />
+                          ) : (
+                            <p className="text-black py-3">{profileData.lastName}</p>
                           )}
                         </div>
 
@@ -185,7 +239,32 @@ function ProfileContent() {
                           <label className="block text-sm font-medium text-black mb-2">
                             Employee ID
                           </label>
-                          <p className="text-black py-3">{profileData.employeeId}</p>
+                          {isEditing ? (
+                            <input
+                              type="text"
+                              value={profileData.employeeId}
+                              onChange={(e) => setProfileData({...profileData, employeeId: e.target.value})}
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-black"
+                            />
+                          ) : (
+                            <p className="text-black py-3">{profileData.employeeId}</p>
+                          )}
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-black mb-2">
+                            Hire Date
+                          </label>
+                          {isEditing ? (
+                            <input
+                              type="date"
+                              value={profileData.hireDate}
+                              onChange={(e) => setProfileData({...profileData, hireDate: e.target.value})}
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-black"
+                            />
+                          ) : (
+                            <p className="text-black py-3">{profileData.hireDate}</p>
+                          )}
                         </div>
 
                         <div>
@@ -219,6 +298,69 @@ function ProfileContent() {
                         ) : (
                           <p className="text-black py-3">{profileData.address}</p>
                         )}
+                      </div>
+
+                      {/* Emergency Contact Section */}
+                      <div className="mt-6">
+                        <h4 className="text-lg font-semibold text-gray-800 mb-4">Emergency Contact</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          <div>
+                            <label className="block text-sm font-medium text-black mb-2">
+                              Contact Name
+                            </label>
+                            {isEditing ? (
+                              <input
+                                type="text"
+                                value={profileData.emergencyContact.name}
+                                onChange={(e) => setProfileData({
+                                  ...profileData, 
+                                  emergencyContact: {...profileData.emergencyContact, name: e.target.value}
+                                })}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-black"
+                              />
+                            ) : (
+                              <p className="text-black py-3">{profileData.emergencyContact.name}</p>
+                            )}
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-black mb-2">
+                              Contact Phone
+                            </label>
+                            {isEditing ? (
+                              <input
+                                type="tel"
+                                value={profileData.emergencyContact.phone}
+                                onChange={(e) => setProfileData({
+                                  ...profileData, 
+                                  emergencyContact: {...profileData.emergencyContact, phone: e.target.value}
+                                })}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-black"
+                              />
+                            ) : (
+                              <p className="text-black py-3">{profileData.emergencyContact.phone}</p>
+                            )}
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-medium text-black mb-2">
+                              Relationship
+                            </label>
+                            {isEditing ? (
+                              <input
+                                type="text"
+                                value={profileData.emergencyContact.relationship}
+                                onChange={(e) => setProfileData({
+                                  ...profileData, 
+                                  emergencyContact: {...profileData.emergencyContact, relationship: e.target.value}
+                                })}
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-black"
+                              />
+                            ) : (
+                              <p className="text-black py-3">{profileData.emergencyContact.relationship}</p>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
