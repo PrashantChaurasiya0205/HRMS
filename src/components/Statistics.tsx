@@ -1,12 +1,46 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
 import { TrendingUp, Calendar, Clock, Target } from 'lucide-react';
-import { useAttendance } from '@/context/AttendanceContext';
+
+interface AttendanceRecord {
+  _id: string;
+  userId: string;
+  date: string;
+  clockIn: string;
+  clockOut?: string;
+  lunchStart?: string;
+  lunchEnd?: string;
+  totalWorkingHours: number;
+  lunchDuration: number;
+  status: string;
+}
 
 export default function Statistics() {
-  const { state } = useAttendance();
+  const [records, setRecords] = useState<AttendanceRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchRecords();
+  }, []);
+
+  const fetchRecords = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/attendance/records');
+      if (response.ok) {
+        const data = await response.json();
+        setRecords(data);
+      } else {
+        console.error('Failed to fetch records');
+      }
+    } catch (error) {
+      console.error('Error fetching records:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const statistics = useMemo(() => {
     const now = new Date();
@@ -16,27 +50,27 @@ export default function Statistics() {
     const endOfThisMonth = endOfMonth(now);
 
     // Filter records for this week and month
-    const thisWeekRecords = state.records.filter(record => {
+    const thisWeekRecords = records.filter(record => {
       const recordDate = new Date(record.date);
       return recordDate >= startOfThisWeek && recordDate <= endOfThisWeek;
     });
 
-    const thisMonthRecords = state.records.filter(record => {
+    const thisMonthRecords = records.filter(record => {
       const recordDate = new Date(record.date);
       return recordDate >= startOfThisMonth && recordDate <= endOfThisMonth;
     });
 
     // Calculate totals
-    const totalHours = state.records.reduce((sum, record) => sum + record.totalWorkingHours, 0);
+    const totalHours = records.reduce((sum, record) => sum + record.totalWorkingHours, 0);
     const weekHours = thisWeekRecords.reduce((sum, record) => sum + record.totalWorkingHours, 0);
     const monthHours = thisMonthRecords.reduce((sum, record) => sum + record.totalWorkingHours, 0);
 
     // Calculate averages
-    const avgDailyHours = state.records.length > 0 ? totalHours / state.records.length : 0;
+    const avgDailyHours = records.length > 0 ? totalHours / records.length : 0;
     const avgWeekHours = thisWeekRecords.length > 0 ? weekHours / thisWeekRecords.length : 0;
 
     // Calculate working days
-    const workingDays = state.records.filter(record => record.totalWorkingHours > 0).length;
+    const workingDays = records.filter(record => record.totalWorkingHours > 0).length;
 
     return {
       totalHours,
@@ -45,13 +79,28 @@ export default function Statistics() {
       avgDailyHours,
       avgWeekHours,
       workingDays,
-      totalRecords: state.records.length,
+      totalRecords: records.length,
     };
-  }, [state.records]);
+  }, [records]);
 
   const getProgressPercentage = (current: number, target: number = 8) => {
     return Math.min((current / target) * 100, 100);
   };
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <h3 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
+          <TrendingUp className="w-5 h-5 mr-2 text-blue-600" />
+          Statistics
+        </h3>
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mr-3"></div>
+          <span className="text-gray-600">Loading statistics...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6">
@@ -116,26 +165,34 @@ export default function Statistics() {
         </div>
       </div>
 
-      {/* Progress Bar for Today's Target */}
-      {state.currentRecord && (
-        <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">Today's Progress</span>
-            <span className="text-sm text-gray-600">
-              {state.currentRecord.totalWorkingHours.toFixed(1)}h / 8h
-            </span>
-          </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-gradient-to-r from-blue-500 to-indigo-500 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${getProgressPercentage(state.currentRecord.totalWorkingHours)}%` }}
-            ></div>
-          </div>
-          <div className="text-xs text-gray-500 mt-1">
-            {getProgressPercentage(state.currentRecord.totalWorkingHours).toFixed(0)}% of daily target
-          </div>
-        </div>
-      )}
+      {/* Today's Progress - Find today's record */}
+      {(() => {
+        const today = new Date().toLocaleDateString('en-CA');
+        const todayRecord = records.find(record => record.date === today);
+        
+        if (todayRecord && todayRecord.totalWorkingHours > 0) {
+          return (
+            <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-gray-700">Today's Progress</span>
+                <span className="text-sm text-gray-600">
+                  {todayRecord.totalWorkingHours.toFixed(1)}h / 8h
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-gradient-to-r from-blue-500 to-indigo-500 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${getProgressPercentage(todayRecord.totalWorkingHours)}%` }}
+                ></div>
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                {getProgressPercentage(todayRecord.totalWorkingHours).toFixed(0)}% of daily target
+              </div>
+            </div>
+          );
+        }
+        return null;
+      })()}
     </div>
   );
 }

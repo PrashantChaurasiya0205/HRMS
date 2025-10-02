@@ -1,25 +1,58 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { format } from 'date-fns';
 import { Search, Filter, Download, Calendar, Clock, Coffee } from 'lucide-react';
-import { useAttendance } from '@/context/AttendanceContext';
-import { exportRecordsToCSV } from '@/utils/storage';
+
+interface AttendanceRecord {
+  _id: string;
+  userId: string;
+  date: string;
+  clockIn: string;
+  clockOut?: string;
+  lunchStart?: string;
+  lunchEnd?: string;
+  totalWorkingHours: number;
+  lunchDuration: number;
+  status: string;
+}
 
 export default function AttendanceLog() {
-  const { state } = useAttendance();
+  const [records, setRecords] = useState<AttendanceRecord[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFilter, setDateFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
 
+  useEffect(() => {
+    fetchRecords();
+  }, []);
+
+  const fetchRecords = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/attendance/records');
+      if (response.ok) {
+        const data = await response.json();
+        setRecords(data);
+      } else {
+        console.error('Failed to fetch records');
+      }
+    } catch (error) {
+      console.error('Error fetching records:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const filteredRecords = useMemo(() => {
-    let filtered = state.records;
+    let filtered = records;
 
     // Search filter
     if (searchTerm) {
       filtered = filtered.filter(record =>
         record.date.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.id.includes(searchTerm)
+        record._id.includes(searchTerm)
       );
     }
 
@@ -34,10 +67,26 @@ export default function AttendanceLog() {
     }
 
     return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [state.records, searchTerm, dateFilter, statusFilter]);
+  }, [records, searchTerm, dateFilter, statusFilter]);
 
   const handleExportCSV = () => {
-    const csvContent = exportRecordsToCSV();
+    const headers = ['Date', 'Clock In', 'Clock Out', 'Lunch Start', 'Lunch End', 'Total Hours', 'Status'];
+    const csvRows = [headers.join(',')];
+    
+    records.forEach((record) => {
+      const row = [
+        record.date,
+        record.clockIn ? new Date(record.clockIn).toLocaleTimeString() : '',
+        record.clockOut ? new Date(record.clockOut).toLocaleTimeString() : '',
+        record.lunchStart ? new Date(record.lunchStart).toLocaleTimeString() : '',
+        record.lunchEnd ? new Date(record.lunchEnd).toLocaleTimeString() : '',
+        record.totalWorkingHours || 0,
+        record.status || ''
+      ];
+      csvRows.push(row.join(','));
+    });
+    
+    const csvContent = csvRows.join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -90,7 +139,7 @@ export default function AttendanceLog() {
             placeholder="Search records..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
           />
         </div>
         
@@ -100,14 +149,14 @@ export default function AttendanceLog() {
             type="date"
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
           />
         </div>
         
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
         >
           <option value="">All Status</option>
           <option value="WORKING">Working</option>
@@ -130,7 +179,16 @@ export default function AttendanceLog() {
             </tr>
           </thead>
           <tbody>
-            {filteredRecords.length === 0 ? (
+            {loading ? (
+              <tr>
+                <td colSpan={6} className="text-center py-8 text-gray-500">
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-3"></div>
+                    Loading records...
+                  </div>
+                </td>
+              </tr>
+            ) : filteredRecords.length === 0 ? (
               <tr>
                 <td colSpan={6} className="text-center py-8 text-gray-500">
                   No attendance records found
@@ -138,21 +196,21 @@ export default function AttendanceLog() {
               </tr>
             ) : (
               filteredRecords.map((record) => (
-                <tr key={record.id} className="border-b border-gray-100 hover:bg-gray-50">
+                <tr key={record._id} className="border-b border-gray-100 hover:bg-gray-50">
                   <td className="py-3 px-4 text-gray-800">
                     {format(new Date(record.date), 'MMM dd, yyyy')}
                   </td>
                   <td className="py-3 px-4 text-gray-600">
                     <div className="flex items-center">
                       <Clock className="w-4 h-4 mr-2 text-blue-500" />
-                      {format(record.clockIn, 'HH:mm:ss')}
+                      {format(new Date(record.clockIn), 'HH:mm:ss')}
                     </div>
                   </td>
                   <td className="py-3 px-4 text-gray-600">
                     {record.clockOut ? (
                       <div className="flex items-center">
                         <Clock className="w-4 h-4 mr-2 text-red-500" />
-                        {format(record.clockOut, 'HH:mm:ss')}
+                        {format(new Date(record.clockOut), 'HH:mm:ss')}
                       </div>
                     ) : (
                       <span className="text-gray-400">-</span>
@@ -163,7 +221,7 @@ export default function AttendanceLog() {
                       <div className="flex items-center">
                         <Coffee className="w-4 h-4 mr-2 text-orange-500" />
                         <div className="text-sm">
-                          <div>{format(record.lunchStart, 'HH:mm')} - {format(record.lunchEnd, 'HH:mm')}</div>
+                          <div>{format(new Date(record.lunchStart), 'HH:mm')} - {format(new Date(record.lunchEnd), 'HH:mm')}</div>
                           <div className="text-xs text-gray-500">{record.lunchDuration} min</div>
                         </div>
                       </div>

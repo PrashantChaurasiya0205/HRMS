@@ -1,41 +1,164 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Clock, Coffee, LogOut, Play } from 'lucide-react';
 import { useAttendance } from '@/context/AttendanceContext';
 
 export default function ActionButtons() {
   const { state, dispatch } = useAttendance();
+  const [isLoading, setIsLoading] = useState(false);
+  const [attendanceStatus, setAttendanceStatus] = useState({
+    hasCheckedIn: false,
+    hasCheckedOut: false,
+    currentStatus: 'IDLE'
+  });
 
-  const handleClockIn = () => {
-    dispatch({ type: 'CLOCK_IN' });
+  useEffect(() => {
+    fetchAttendanceStatus();
+  }, []);
+
+  const fetchAttendanceStatus = async () => {
+    try {
+      const response = await fetch('/api/attendance/status');
+      if (response.ok) {
+        const data = await response.json();
+        setAttendanceStatus(data);
+      }
+    } catch (error) {
+      console.error('Error fetching attendance status:', error);
+    }
   };
 
-  const handleClockOut = () => {
-    dispatch({ type: 'CLOCK_OUT' });
+  const handleClockIn = async () => {
+    if (attendanceStatus.hasCheckedIn) {
+      alert('You have already checked in today!');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/attendance/clock-in', {
+        method: 'POST',
+      });
+      
+      if (response.ok) {
+        dispatch({ type: 'CLOCK_IN' });
+        await fetchAttendanceStatus();
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Failed to clock in');
+      }
+    } catch (error) {
+      console.error('Error clocking in:', error);
+      alert('Failed to clock in');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleStartLunch = () => {
-    dispatch({ type: 'START_LUNCH' });
+  const handleClockOut = async () => {
+    if (attendanceStatus.hasCheckedOut) {
+      alert('You have already checked out today!');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/attendance/clock-out', {
+        method: 'POST',
+      });
+      
+      if (response.ok) {
+        dispatch({ type: 'CLOCK_OUT' });
+        await fetchAttendanceStatus();
+        alert('Successfully checked out!');
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Failed to clock out');
+      }
+    } catch (error) {
+      console.error('Error clocking out:', error);
+      alert('Failed to clock out');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleEndLunch = () => {
-    dispatch({ type: 'END_LUNCH' });
+  const handleStartLunch = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/attendance/lunch-start', {
+        method: 'POST',
+      });
+      
+      if (response.ok) {
+        dispatch({ type: 'START_LUNCH' });
+        await fetchAttendanceStatus();
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Failed to start lunch');
+      }
+    } catch (error) {
+      console.error('Error starting lunch:', error);
+      alert('Failed to start lunch');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEndLunch = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/attendance/lunch-end', {
+        method: 'POST',
+      });
+      
+      if (response.ok) {
+        dispatch({ type: 'END_LUNCH' });
+        await fetchAttendanceStatus();
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Failed to end lunch');
+      }
+    } catch (error) {
+      console.error('Error ending lunch:', error);
+      alert('Failed to end lunch');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const getButtonConfig = () => {
-    switch (state.status) {
-      case 'IDLE':
-        return {
-          primary: {
-            text: 'Clock In',
-            icon: Play,
-            onClick: handleClockIn,
-            className: 'bg-green-600 hover:bg-green-700 text-white',
-          },
-          secondary: null,
-        };
-      
+    // Use API status instead of local state
+    const status = attendanceStatus.currentStatus;
+    
+    if (attendanceStatus.hasCheckedOut) {
+      return {
+        primary: {
+          text: 'Day Completed',
+          icon: Clock,
+          onClick: () => alert('You have already completed your day!'),
+          className: 'bg-gray-400 cursor-not-allowed text-white',
+          disabled: true,
+        },
+        secondary: null,
+      };
+    }
+
+    if (!attendanceStatus.hasCheckedIn) {
+      return {
+        primary: {
+          text: 'Clock In',
+          icon: Play,
+          onClick: handleClockIn,
+          className: 'bg-green-600 hover:bg-green-700 text-white',
+          disabled: isLoading,
+        },
+        secondary: null,
+      };
+    }
+
+    switch (status) {
       case 'WORKING':
         return {
           primary: {
@@ -43,12 +166,14 @@ export default function ActionButtons() {
             icon: Coffee,
             onClick: handleStartLunch,
             className: 'bg-orange-600 hover:bg-orange-700 text-white',
+            disabled: isLoading,
           },
           secondary: {
             text: 'Clock Out',
             icon: LogOut,
             onClick: handleClockOut,
             className: 'bg-red-600 hover:bg-red-700 text-white',
+            disabled: isLoading,
           },
         };
       
@@ -59,24 +184,15 @@ export default function ActionButtons() {
             icon: Clock,
             onClick: handleEndLunch,
             className: 'bg-blue-600 hover:bg-blue-700 text-white',
+            disabled: isLoading,
           },
           secondary: {
             text: 'Clock Out',
             icon: LogOut,
             onClick: handleClockOut,
             className: 'bg-red-600 hover:bg-red-700 text-white',
+            disabled: isLoading,
           },
-        };
-      
-      case 'CLOCKED_OUT':
-        return {
-          primary: {
-            text: 'Clock In',
-            icon: Play,
-            onClick: handleClockIn,
-            className: 'bg-green-600 hover:bg-green-700 text-white',
-          },
-          secondary: null,
         };
       
       default:
@@ -86,6 +202,7 @@ export default function ActionButtons() {
             icon: Play,
             onClick: handleClockIn,
             className: 'bg-green-600 hover:bg-green-700 text-white',
+            disabled: isLoading,
           },
           secondary: null,
         };
@@ -102,9 +219,18 @@ export default function ActionButtons() {
         {/* Primary Action */}
         <button
           onClick={buttonConfig.primary.onClick}
-          className={`w-full flex items-center justify-center px-6 py-4 rounded-lg font-semibold text-lg transition-all duration-200 transform hover:scale-105 ${buttonConfig.primary.className}`}
+          disabled={buttonConfig.primary.disabled || isLoading}
+          className={`w-full flex items-center justify-center px-6 py-4 rounded-lg font-semibold text-lg transition-all duration-200 transform ${
+            buttonConfig.primary.disabled || isLoading 
+              ? 'opacity-50 cursor-not-allowed' 
+              : 'hover:scale-105'
+          } ${buttonConfig.primary.className}`}
         >
-          <buttonConfig.primary.icon className="w-6 h-6 mr-3" />
+          {isLoading ? (
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-3"></div>
+          ) : (
+            <buttonConfig.primary.icon className="w-6 h-6 mr-3" />
+          )}
           {buttonConfig.primary.text}
         </button>
 
@@ -112,9 +238,18 @@ export default function ActionButtons() {
         {buttonConfig.secondary && (
           <button
             onClick={buttonConfig.secondary.onClick}
-            className={`w-full flex items-center justify-center px-6 py-4 rounded-lg font-semibold text-lg transition-all duration-200 transform hover:scale-105 ${buttonConfig.secondary.className}`}
+            disabled={buttonConfig.secondary.disabled || isLoading}
+            className={`w-full flex items-center justify-center px-6 py-4 rounded-lg font-semibold text-lg transition-all duration-200 transform ${
+              buttonConfig.secondary.disabled || isLoading 
+                ? 'opacity-50 cursor-not-allowed' 
+                : 'hover:scale-105'
+            } ${buttonConfig.secondary.className}`}
           >
-            <buttonConfig.secondary.icon className="w-6 h-6 mr-3" />
+            {isLoading ? (
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white mr-3"></div>
+            ) : (
+              <buttonConfig.secondary.icon className="w-6 h-6 mr-3" />
+            )}
             {buttonConfig.secondary.text}
           </button>
         )}
@@ -124,10 +259,10 @@ export default function ActionButtons() {
       <div className="mt-6 p-4 bg-gray-50 rounded-lg">
         <div className="text-sm text-gray-600 mb-2">Current Status:</div>
         <div className="font-semibold text-gray-800">
-          {state.status === 'IDLE' && 'Ready to start your day'}
-          {state.status === 'WORKING' && 'Currently working'}
-          {state.status === 'LUNCH_BREAK' && 'On lunch break'}
-          {state.status === 'CLOCKED_OUT' && 'Day completed'}
+          {attendanceStatus.hasCheckedOut && 'Day completed'}
+          {!attendanceStatus.hasCheckedIn && !attendanceStatus.hasCheckedOut && 'Ready to start your day'}
+          {attendanceStatus.hasCheckedIn && attendanceStatus.currentStatus === 'WORKING' && 'Currently working'}
+          {attendanceStatus.hasCheckedIn && attendanceStatus.currentStatus === 'LUNCH_BREAK' && 'On lunch break'}
         </div>
       </div>
     </div>

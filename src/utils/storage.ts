@@ -1,83 +1,105 @@
-import { AttendanceRecord } from '@/types/attendance';
+// Local storage utilities for attendance data
+export const storage = {
+  // Get data from localStorage
+  get: (key: string) => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const item = localStorage.getItem(key);
+      return item ? JSON.parse(item) : null;
+    } catch (error) {
+      console.error('Error getting data from localStorage:', error);
+      return null;
+    }
+  },
 
-const STORAGE_KEY = 'attendance_records';
+  // Set data in localStorage
+  set: (key: string, value: any) => {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (error) {
+      console.error('Error setting data in localStorage:', error);
+    }
+  },
 
-export const saveAttendanceRecord = (record: AttendanceRecord): void => {
+  // Remove data from localStorage
+  remove: (key: string) => {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.removeItem(key);
+    } catch (error) {
+      console.error('Error removing data from localStorage:', error);
+    }
+  },
+
+  // Clear all attendance data
+  clear: () => {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.removeItem('attendanceRecords');
+      localStorage.removeItem('currentAttendance');
+    } catch (error) {
+      console.error('Error clearing localStorage:', error);
+    }
+  }
+};
+
+// Save attendance record to localStorage
+export const saveAttendanceRecord = (record: any) => {
+  if (typeof window === 'undefined') return;
   try {
-    const existingRecords = getAttendanceRecords();
-    const updatedRecords = [...existingRecords, record];
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedRecords));
+    const records = storage.get('attendanceRecords') || [];
+    const existingIndex = records.findIndex((r: any) => r.id === record.id);
+    
+    if (existingIndex >= 0) {
+      records[existingIndex] = record;
+    } else {
+      records.push(record);
+    }
+    
+    storage.set('attendanceRecords', records);
   } catch (error) {
     console.error('Error saving attendance record:', error);
   }
 };
 
-export const getAttendanceRecords = (): AttendanceRecord[] => {
+// Get all attendance records from localStorage
+export const getAttendanceRecords = () => {
+  if (typeof window === 'undefined') return [];
   try {
-    const records = localStorage.getItem(STORAGE_KEY);
-    if (!records) return [];
-    
-    const parsedRecords = JSON.parse(records);
-    // Convert date strings back to Date objects
-    return parsedRecords.map((record: any) => ({
-      ...record,
-      clockIn: new Date(record.clockIn),
-      clockOut: record.clockOut ? new Date(record.clockOut) : undefined,
-      lunchStart: record.lunchStart ? new Date(record.lunchStart) : undefined,
-      lunchEnd: record.lunchEnd ? new Date(record.lunchEnd) : undefined,
-    }));
+    return storage.get('attendanceRecords') || [];
   } catch (error) {
-    console.error('Error loading attendance records:', error);
+    console.error('Error getting attendance records:', error);
     return [];
   }
 };
 
-export const updateAttendanceRecord = (updatedRecord: AttendanceRecord): void => {
+// Export records to CSV format
+export const exportRecordsToCSV = () => {
+  if (typeof window === 'undefined') return '';
   try {
     const records = getAttendanceRecords();
-    const updatedRecords = records.map(record => 
-      record.id === updatedRecord.id ? updatedRecord : record
-    );
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedRecords));
+    if (records.length === 0) return '';
+    
+    const headers = ['Date', 'Clock In', 'Clock Out', 'Lunch Start', 'Lunch End', 'Total Hours', 'Status'];
+    const csvRows = [headers.join(',')];
+    
+    records.forEach((record: any) => {
+      const row = [
+        record.date,
+        record.clockIn ? new Date(record.clockIn).toLocaleTimeString() : '',
+        record.clockOut ? new Date(record.clockOut).toLocaleTimeString() : '',
+        record.lunchStart ? new Date(record.lunchStart).toLocaleTimeString() : '',
+        record.lunchEnd ? new Date(record.lunchEnd).toLocaleTimeString() : '',
+        record.totalWorkingHours || 0,
+        record.status || ''
+      ];
+      csvRows.push(row.join(','));
+    });
+    
+    return csvRows.join('\n');
   } catch (error) {
-    console.error('Error updating attendance record:', error);
+    console.error('Error exporting records to CSV:', error);
+    return '';
   }
-};
-
-export const deleteAttendanceRecord = (recordId: string): void => {
-  try {
-    const records = getAttendanceRecords();
-    const filteredRecords = records.filter(record => record.id !== recordId);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filteredRecords));
-  } catch (error) {
-    console.error('Error deleting attendance record:', error);
-  }
-};
-
-export const clearAllRecords = (): void => {
-  try {
-    localStorage.removeItem(STORAGE_KEY);
-  } catch (error) {
-    console.error('Error clearing attendance records:', error);
-  }
-};
-
-export const exportRecordsToCSV = (): string => {
-  const records = getAttendanceRecords();
-  const headers = ['Date', 'Clock In', 'Clock Out', 'Lunch Start', 'Lunch End', 'Working Hours', 'Lunch Duration'];
-  
-  const csvContent = [
-    headers.join(','),
-    ...records.map(record => [
-      record.date,
-      record.clockIn.toLocaleTimeString(),
-      record.clockOut?.toLocaleTimeString() || '',
-      record.lunchStart?.toLocaleTimeString() || '',
-      record.lunchEnd?.toLocaleTimeString() || '',
-      record.totalWorkingHours.toFixed(2),
-      record.lunchDuration
-    ].join(','))
-  ].join('\n');
-  
-  return csvContent;
 };

@@ -16,7 +16,7 @@ const WithAuth = ({ children }: WithAuthProps) => {
   useEffect(() => {
     if (status === "unauthenticated") {
       const timeout = setTimeout(() => {
-        router.push("/api/auth/signin"); // redirect to Google login
+        router.push("/login"); // redirect to login page
       }, 2000); // wait 2s to show spinner before redirect
 
       return () => clearTimeout(timeout);
