@@ -1,10 +1,6 @@
 'use client';
 
-import { AttendanceProvider } from '@/context/AttendanceContext';
-import SessionProvider from '@/components/SessionProvider';
-import WithAuth from '@/auth/WithAuth';
-import Navigation from '@/components/Navigation';
-import Footer from '@/components/Footer';
+import AppLayout from '@/components/AppLayout';
 import { User, Mail, Calendar, Clock, Settings, Edit, Save, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
@@ -65,10 +61,7 @@ function ProfileContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-cyan-100">
-            <Navigation />
-            
-            <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8">
               {/* Header */}
               <div className="text-center mb-8" id="profile">
                 <h1 className="text-4xl font-bold text-gray-800 mb-2">Profile</h1>
@@ -258,21 +251,14 @@ function ProfileContent() {
                   </div>
                 </div>
               </div>
-            </div>
-            
-            <Footer />
-          </div>
-  );
-}
+                        </div>
+              );
+            }
 
-export default function ProfilePage() {
-  return (
-    <SessionProvider>
-      <WithAuth>
-        <AttendanceProvider>
-          <ProfileContent />
-        </AttendanceProvider>
-      </WithAuth>
-    </SessionProvider>
-  );
-}
+            export default function ProfilePage() {
+              return (
+                <AppLayout>
+                  <ProfileContent />
+                </AppLayout>
+              );
+            }

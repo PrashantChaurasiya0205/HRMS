@@ -50,15 +50,24 @@ export default function Navigation() {
               <FileText className="w-4 h-4 mr-2" />
               Leave
             </Link>
-            <Link
-              href="/profile"
-              className={`flex items-center transition-colors ${
-                isActive('/profile') ? 'text-blue-600 font-semibold' : 'text-gray-600 hover:text-blue-600'
-              }`}
-            >
-              <User className="w-4 h-4 mr-2" />
-              Profile
-            </Link>
+                        <Link
+                          href="/profile"
+                          className={`flex items-center transition-colors ${
+                            isActive('/profile') ? 'text-blue-600 font-semibold' : 'text-gray-600 hover:text-blue-600'
+                          }`}
+                        >
+                          <User className="w-4 h-4 mr-2" />
+                          Profile
+                        </Link>
+                        <Link
+                          href="/manager"
+                          className={`flex items-center transition-colors ${
+                            isActive('/manager') ? 'text-blue-600 font-semibold' : 'text-gray-600 hover:text-blue-600'
+                          }`}
+                        >
+                          <User className="w-4 h-4 mr-2" />
+                          Manager
+                        </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -104,16 +113,26 @@ export default function Navigation() {
                 <FileText className="w-4 h-4 mr-3" />
                 Leave
               </Link>
-              <Link
-                href="/profile"
-                onClick={() => setIsOpen(false)}
-                className={`flex items-center px-4 py-2 rounded-lg transition-colors ${
-                  isActive('/profile') ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-100'
-                }`}
-              >
-                <User className="w-4 h-4 mr-3" />
-                Profile
-              </Link>
+                          <Link
+                            href="/profile"
+                            onClick={() => setIsOpen(false)}
+                            className={`flex items-center px-4 py-2 rounded-lg transition-colors ${
+                              isActive('/profile') ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-100'
+                            }`}
+                          >
+                            <User className="w-4 h-4 mr-3" />
+                            Profile
+                          </Link>
+                          <Link
+                            href="/manager"
+                            onClick={() => setIsOpen(false)}
+                            className={`flex items-center px-4 py-2 rounded-lg transition-colors ${
+                              isActive('/manager') ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-100'
+                            }`}
+                          >
+                            <User className="w-4 h-4 mr-3" />
+                            Manager
+                          </Link>
             </div>
           </div>
         )}

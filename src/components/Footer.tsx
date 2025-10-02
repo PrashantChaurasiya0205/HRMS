@@ -44,10 +44,10 @@ export default function Footer() {
         <div className="border-t border-gray-200 mt-6 pt-6">
           <div className="flex flex-col md:flex-row items-center justify-between">
             <p className="text-sm text-gray-600 mb-2 md:mb-0">
-              © 2024 Attendance Monitor. All rights reserved.
+              © 2025 Attendance Monitor. All rights reserved.
             </p>
             <div className="flex items-center text-sm text-gray-600">
-              <span>Made with</span>
+              <span>Made By Prashant</span>
               <Heart className="w-4 h-4 text-red-500 mx-1" />
               <span>for productivity</span>
             </div>
