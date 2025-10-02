@@ -18,16 +18,16 @@ export default function Navigation() {
 
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center py-4">
+      <div className="container mx-auto px-2 sm:px-4">
+        <div className="flex justify-between items-center py-3 sm:py-4">
           {/* Logo */}
           <Link href="/dashboard" className="flex items-center">
-            <img src="/Gemini_Generated_Image_6dg6126dg6126dg6.png" alt="Workshant Logo" className="w-8 h-8 mr-2" />
-            <h1 className="text-xl font-bold text-gray-800">Workshant</h1>
+            <img src="/Gemini_Generated_Image_6dg6126dg6126dg6.png" alt="Workshant Logo" className="w-6 h-6 sm:w-8 sm:h-8 mr-2" />
+            <h1 className="text-lg sm:text-xl font-bold text-gray-800">Workshant</h1>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex space-x-6">
+          <div className="hidden lg:flex space-x-4 xl:space-x-6">
             <Link
               href="/dashboard"
               className={`flex items-center transition-colors ${
@@ -94,16 +94,16 @@ export default function Navigation() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100"
+            className="lg:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100"
           >
-            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
           </button>
         </div>
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden py-4 border-t border-gray-200">
-            <div className="flex flex-col space-y-2">
+          <div className="lg:hidden py-4 border-t border-gray-200">
+            <div className="flex flex-col space-y-1 sm:space-y-2">
               <Link
                 href="/dashboard"
                 onClick={() => setIsOpen(false)}
