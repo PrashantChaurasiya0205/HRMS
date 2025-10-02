@@ -12,6 +12,7 @@ export default function ActionButtons() {
     hasCheckedOut: false,
     currentStatus: 'IDLE'
   });
+  const [statusLoading, setStatusLoading] = useState(true);
 
   useEffect(() => {
     fetchAttendanceStatus();
@@ -19,6 +20,7 @@ export default function ActionButtons() {
 
   const fetchAttendanceStatus = async () => {
     try {
+      setStatusLoading(true);
       const response = await fetch('/api/attendance/status');
       if (response.ok) {
         const data = await response.json();
@@ -26,6 +28,8 @@ export default function ActionButtons() {
       }
     } catch (error) {
       console.error('Error fetching attendance status:', error);
+    } finally {
+      setStatusLoading(false);
     }
   };
 
@@ -132,6 +136,7 @@ export default function ActionButtons() {
     // Use API status instead of local state
     const status = attendanceStatus.currentStatus;
     
+    // Check if day is completed first
     if (attendanceStatus.hasCheckedOut) {
       return {
         primary: {
@@ -145,6 +150,7 @@ export default function ActionButtons() {
       };
     }
 
+    // Check if not checked in yet
     if (!attendanceStatus.hasCheckedIn) {
       return {
         primary: {
@@ -158,6 +164,7 @@ export default function ActionButtons() {
       };
     }
 
+    // Handle different working states
     switch (status) {
       case 'WORKING':
         return {
@@ -195,7 +202,21 @@ export default function ActionButtons() {
           },
         };
       
+      case 'CLOCKED_OUT':
+        // This should not happen if hasCheckedOut is false, but just in case
+        return {
+          primary: {
+            text: 'Day Completed',
+            icon: Clock,
+            onClick: () => alert('You have already completed your day!'),
+            className: 'bg-gray-400 cursor-not-allowed text-white',
+            disabled: true,
+          },
+          secondary: null,
+        };
+      
       default:
+        // Default to clock in if status is unclear
         return {
           primary: {
             text: 'Clock In',
@@ -210,6 +231,18 @@ export default function ActionButtons() {
   };
 
   const buttonConfig = getButtonConfig();
+
+  if (statusLoading) {
+    return (
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">Actions</h3>
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mr-3"></div>
+          <span className="text-gray-600">Loading status...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6">

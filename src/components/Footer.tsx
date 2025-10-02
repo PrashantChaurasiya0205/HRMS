@@ -10,9 +10,9 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row items-center justify-between">
           {/* Logo and Description */}
           <div className="flex items-center mb-4 md:mb-0">
-            <Clock className="w-6 h-6 text-blue-600 mr-2" />
+            <img src="/Gemini_Generated_Image_6dg6126dg6126dg6.png" alt="Workshant Logo" className="w-6 h-6 mr-2" />
             <div>
-              <h3 className="text-lg font-semibold text-gray-800">Attendance Monitor</h3>
+              <h3 className="text-lg font-semibold text-gray-800">Workshant</h3>
               <p className="text-sm text-gray-600">Track your work hours with precision</p>
             </div>
           </div>
@@ -44,10 +44,11 @@ export default function Footer() {
         <div className="border-t border-gray-200 mt-6 pt-6">
           <div className="flex flex-col md:flex-row items-center justify-between">
             <p className="text-sm text-gray-600 mb-2 md:mb-0">
-              © 2024 Attendance Monitor. All rights reserved.
+              © 2025 Workshant. All rights reserved.
             </p>
             <div className="flex items-center text-sm text-gray-600">
-              <span>Made with</span>
+              <img src="/Gemini_Generated_Image_6dg6126dg6126dg6.png" alt="Prashant Chaurasiya" className="w-6 h-6 rounded-full mr-2" />
+              <span>Made By Prashant Chaurasiya</span>
               <Heart className="w-4 h-4 text-red-500 mx-1" />
               <span>for productivity</span>
             </div>

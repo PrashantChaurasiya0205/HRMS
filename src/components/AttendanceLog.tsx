@@ -217,12 +217,16 @@ export default function AttendanceLog() {
                     )}
                   </td>
                   <td className="py-3 px-4 text-gray-600">
-                    {record.lunchStart && record.lunchEnd ? (
+                    {record.lunchStart ? (
                       <div className="flex items-center">
                         <Coffee className="w-4 h-4 mr-2 text-orange-500" />
                         <div className="text-sm">
-                          <div>{format(new Date(record.lunchStart), 'HH:mm')} - {format(new Date(record.lunchEnd), 'HH:mm')}</div>
-                          <div className="text-xs text-gray-500">{record.lunchDuration} min</div>
+                          <div>{format(new Date(record.lunchStart), 'HH:mm:ss')}</div>
+                          {record.lunchEnd && (
+                            <div className="text-xs text-gray-500">
+                              - {format(new Date(record.lunchEnd), 'HH:mm:ss')}
+                            </div>
+                          )}
                         </div>
                       </div>
                     ) : (

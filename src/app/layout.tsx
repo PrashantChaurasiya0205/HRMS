@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Attendance Monitor",
+  title: "Workshant",
   description: "Track your work hours and attendance with ease",
 };
 

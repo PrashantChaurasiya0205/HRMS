@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Clock, BarChart3, History, User, FileText } from 'lucide-react';
+import { signOut } from 'next-auth/react';
+import { Menu, X, Clock, BarChart3, User, FileText, Calendar, LogOut } from 'lucide-react';
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,14 +12,18 @@ export default function Navigation() {
 
   const isActive = (path: string) => pathname === path;
 
+  const handleLogout = () => {
+    signOut({ callbackUrl: '/login' });
+  };
+
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
           <Link href="/dashboard" className="flex items-center">
-            <Clock className="w-8 h-8 text-blue-600 mr-2" />
-            <h1 className="text-xl font-bold text-gray-800">Attendance Monitor</h1>
+            <img src="/Gemini_Generated_Image_6dg6126dg6126dg6.png" alt="Workshant Logo" className="w-8 h-8 mr-2" />
+            <h1 className="text-xl font-bold text-gray-800">Workshant</h1>
           </Link>
 
           {/* Desktop Navigation */}
@@ -50,15 +55,40 @@ export default function Navigation() {
               <FileText className="w-4 h-4 mr-2" />
               Leave
             </Link>
-            <Link
-              href="/profile"
-              className={`flex items-center transition-colors ${
-                isActive('/profile') ? 'text-blue-600 font-semibold' : 'text-gray-600 hover:text-blue-600'
-              }`}
-            >
-              <User className="w-4 h-4 mr-2" />
-              Profile
-            </Link>
+                        <Link
+                          href="/profile"
+                          className={`flex items-center transition-colors ${
+                            isActive('/profile') ? 'text-blue-600 font-semibold' : 'text-gray-600 hover:text-blue-600'
+                          }`}
+                        >
+                          <User className="w-4 h-4 mr-2" />
+                          Profile
+                        </Link>
+                        <Link
+                          href="/manager"
+                          className={`flex items-center transition-colors ${
+                            isActive('/manager') ? 'text-blue-600 font-semibold' : 'text-gray-600 hover:text-blue-600'
+                          }`}
+                        >
+                          <User className="w-4 h-4 mr-2" />
+                          Manager
+                        </Link>
+                        <Link
+                          href="/calendar"
+                          className={`flex items-center transition-colors ${
+                            isActive('/calendar') ? 'text-blue-600 font-semibold' : 'text-gray-600 hover:text-blue-600'
+                          }`}
+                        >
+                          <Calendar className="w-4 h-4 mr-2" />
+                          Calendar
+                        </Link>
+                        <button
+                          onClick={handleLogout}
+                          className="flex items-center text-gray-600 hover:text-red-600 transition-colors"
+                        >
+                          <LogOut className="w-4 h-4 mr-2" />
+                          Logout
+                        </button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -104,16 +134,46 @@ export default function Navigation() {
                 <FileText className="w-4 h-4 mr-3" />
                 Leave
               </Link>
-              <Link
-                href="/profile"
-                onClick={() => setIsOpen(false)}
-                className={`flex items-center px-4 py-2 rounded-lg transition-colors ${
-                  isActive('/profile') ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-100'
-                }`}
-              >
-                <User className="w-4 h-4 mr-3" />
-                Profile
-              </Link>
+                          <Link
+                            href="/profile"
+                            onClick={() => setIsOpen(false)}
+                            className={`flex items-center px-4 py-2 rounded-lg transition-colors ${
+                              isActive('/profile') ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-100'
+                            }`}
+                          >
+                            <User className="w-4 h-4 mr-3" />
+                            Profile
+                          </Link>
+                          <Link
+                            href="/manager"
+                            onClick={() => setIsOpen(false)}
+                            className={`flex items-center px-4 py-2 rounded-lg transition-colors ${
+                              isActive('/manager') ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-100'
+                            }`}
+                          >
+                            <User className="w-4 h-4 mr-3" />
+                            Manager
+                          </Link>
+                          <Link
+                            href="/calendar"
+                            onClick={() => setIsOpen(false)}
+                            className={`flex items-center px-4 py-2 rounded-lg transition-colors ${
+                              isActive('/calendar') ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-100'
+                            }`}
+                          >
+                            <Calendar className="w-4 h-4 mr-3" />
+                            Calendar
+                          </Link>
+                          <button
+                            onClick={() => {
+                              setIsOpen(false);
+                              handleLogout();
+                            }}
+                            className="flex items-center px-4 py-2 rounded-lg text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors"
+                          >
+                            <LogOut className="w-4 h-4 mr-3" />
+                            Logout
+                          </button>
             </div>
           </div>
         )}
