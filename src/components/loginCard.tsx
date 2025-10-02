@@ -38,11 +38,12 @@ const LoginCard = () => {
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md text-center">
         <div className="flex items-center justify-center mb-6">
-          <Clock className="w-12 h-12 text-blue-600 mr-3" />
-          <h1 className="text-2xl font-bold text-gray-800">Attendance Monitor</h1>
+          <img src="/Gemini_Generated_Image_6dg6126dg6126dg6.png" alt="Workshant Logo" className="w-12 h-12 mr-3" />
+          <h1 className="text-2xl font-bold text-gray-800">Workshant</h1>
         </div>
         
-        <h2 className="text-xl font-semibold text-gray-700 mb-4">Welcome Back</h2>
+        <h2 className="text-xl font-semibold text-gray-700 mb-2">Welcome Back</h2>
+        <p className="text-sm text-gray-600 mb-6">One stop solution for HRMS - Complete solution for management</p>
         <p className="text-gray-600 mb-6">{message}</p>
         
         {showSpinner ? (

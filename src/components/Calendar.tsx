@@ -129,25 +129,25 @@ export default function Calendar() {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6">
+    <div className="bg-white rounded-xl shadow-lg p-3 sm:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row items-center justify-between mb-4 sm:mb-6 space-y-4 sm:space-y-0">
         <div className="flex items-center">
-          <CalendarIcon className="w-6 h-6 text-blue-600 mr-2" />
-          <h2 className="text-2xl font-bold text-gray-800">
+          <CalendarIcon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 mr-2 sm:mr-3" />
+          <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800">
             {format(currentDate, 'MMMM yyyy')}
           </h2>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => setCurrentDate(subMonths(currentDate, 1))}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
           <button
             onClick={() => setCurrentDate(new Date())}
-            className="px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-2 sm:px-3 py-1 text-xs sm:text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             Today
           </button>
@@ -155,7 +155,7 @@ export default function Calendar() {
             onClick={() => setCurrentDate(addMonths(currentDate, 1))}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
           <button
             onClick={() => {
@@ -163,10 +163,11 @@ export default function Calendar() {
               setFormData({ name: '', date: '', type: 'NATIONAL' as 'NATIONAL' | 'PUBLIC' | 'COMPANY' | 'RELIGIOUS', description: '', isRecurring: false });
               setShowModal(true);
             }}
-            className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            className="flex items-center px-2 sm:px-4 py-1 sm:py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-xs sm:text-sm"
           >
-            <Plus className="w-4 h-4 mr-2" />
-            Add Holiday
+            <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Add Holiday</span>
+            <span className="sm:hidden">Add</span>
           </button>
         </div>
       </div>
@@ -174,7 +175,7 @@ export default function Calendar() {
       {/* Calendar Grid */}
       <div className="grid grid-cols-7 gap-1 mb-4">
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-          <div key={day} className="p-2 text-center font-semibold text-gray-600 text-sm">
+          <div key={day} className="p-1 sm:p-2 text-center font-semibold text-gray-600 text-xs sm:text-sm">
             {day}
           </div>
         ))}
@@ -182,7 +183,7 @@ export default function Calendar() {
 
       <div className="grid grid-cols-7 gap-1">
         {emptyDays.map((_, index) => (
-          <div key={`empty-${index}`} className="h-24"></div>
+          <div key={`empty-${index}`} className="h-16 sm:h-20 lg:h-24"></div>
         ))}
         {days.map(day => {
           const dayHolidays = getHolidaysForDate(day);
@@ -191,28 +192,28 @@ export default function Calendar() {
           return (
             <div
               key={day.toISOString()}
-              className={`h-24 p-1 border border-gray-200 hover:bg-gray-50 cursor-pointer ${
+              className={`h-16 sm:h-20 lg:h-24 p-1 border border-gray-200 hover:bg-gray-50 cursor-pointer ${
                 isToday ? 'bg-blue-50 border-blue-300' : ''
               }`}
             >
               <div className="flex items-center justify-between mb-1">
-                <span className={`text-sm font-medium ${isToday ? 'text-blue-600' : 'text-gray-700'}`}>
+                <span className={`text-xs sm:text-sm font-medium ${isToday ? 'text-blue-600' : 'text-gray-700'}`}>
                   {format(day, 'd')}
                 </span>
               </div>
-              <div className="space-y-1">
-                {dayHolidays.slice(0, 2).map(holiday => (
+              <div className="space-y-0.5 sm:space-y-1">
+                {dayHolidays.slice(0, 1).map(holiday => (
                   <div
                     key={holiday._id}
-                    className={`text-xs px-1 py-0.5 rounded border ${getHolidayColor(holiday.type)}`}
+                    className={`text-xs px-1 py-0.5 rounded border ${getHolidayColor(holiday.type)} truncate`}
                     title={holiday.name}
                   >
                     {holiday.name}
                   </div>
                 ))}
-                {dayHolidays.length > 2 && (
+                {dayHolidays.length > 1 && (
                   <div className="text-xs text-gray-500">
-                    +{dayHolidays.length - 2} more
+                    +{dayHolidays.length - 1} more
                   </div>
                 )}
               </div>
@@ -222,35 +223,35 @@ export default function Calendar() {
       </div>
 
       {/* Holiday List */}
-      <div className="mt-8">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">All Holidays</h3>
+      <div className="mt-6 sm:mt-8">
+        <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4">All Holidays</h3>
         <div className="space-y-2">
           {holidays.map(holiday => (
-            <div key={holiday._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-              <div className="flex items-center">
-                <div className={`px-2 py-1 rounded text-xs font-medium ${getHolidayColor(holiday.type)}`}>
+            <div key={holiday._id} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-2 sm:p-3 bg-gray-50 rounded-lg space-y-2 sm:space-y-0">
+              <div className="flex flex-col sm:flex-row sm:items-center w-full sm:w-auto">
+                <div className={`px-2 py-1 rounded text-xs font-medium ${getHolidayColor(holiday.type)} mb-2 sm:mb-0`}>
                   {holiday.type}
                 </div>
-                <div className="ml-3">
-                  <div className="font-medium text-gray-800">{holiday.name}</div>
-                  <div className="text-sm text-gray-600">
+                <div className="ml-0 sm:ml-3 flex-1">
+                  <div className="font-medium text-gray-800 text-sm sm:text-base">{holiday.name}</div>
+                  <div className="text-xs sm:text-sm text-gray-600">
                     {format(new Date(holiday.date), 'MMM dd, yyyy')}
                     {holiday.description && ` - ${holiday.description}`}
                   </div>
                 </div>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 self-end sm:self-auto">
                 <button
                   onClick={() => handleEdit(holiday)}
                   className="p-1 text-gray-400 hover:text-blue-600"
                 >
-                  <Edit className="w-4 h-4" />
+                  <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
                 </button>
                 <button
                   onClick={() => handleDelete(holiday._id)}
                   className="p-1 text-gray-400 hover:text-red-600"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
                 </button>
               </div>
             </div>
@@ -260,12 +261,12 @@ export default function Calendar() {
 
       {/* Add/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4">
               {editingHoliday ? 'Edit Holiday' : 'Add Holiday'}
             </h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Holiday Name
@@ -328,17 +329,17 @@ export default function Calendar() {
                   Recurring yearly
                 </label>
               </div>
-              <div className="flex justify-end space-x-3">
+              <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                  className="px-3 sm:px-4 py-2 text-gray-600 hover:text-gray-800 text-sm sm:text-base"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="px-3 sm:px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm sm:text-base"
                 >
                   {editingHoliday ? 'Update' : 'Add'} Holiday
                 </button>
