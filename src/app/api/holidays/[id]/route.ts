@@ -6,7 +6,7 @@ import dbConnect from '@/lib/dbConnect';
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -24,8 +24,9 @@ export async function PUT(
 
     await dbConnect();
     
+    const { id } = await params;
     const holiday = await Holiday.findByIdAndUpdate(
-      params.id,
+      id,
       { name, date, type, description, isRecurring },
       { new: true }
     );
@@ -47,7 +48,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -58,7 +59,8 @@ export async function DELETE(
 
     await dbConnect();
     
-    const holiday = await Holiday.findByIdAndDelete(params.id);
+    const { id } = await params;
+    const holiday = await Holiday.findByIdAndDelete(id);
 
     if (!holiday) {
       return NextResponse.json({ error: 'Holiday not found' }, { status: 404 });

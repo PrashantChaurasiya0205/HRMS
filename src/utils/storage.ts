@@ -74,6 +74,22 @@ export const getAttendanceRecords = () => {
   }
 };
 
+// Update attendance record in localStorage
+export const updateAttendanceRecord = (record: any) => {
+  if (typeof window === 'undefined') return;
+  try {
+    const records = storage.get('attendanceRecords') || [];
+    const existingIndex = records.findIndex((r: any) => r.id === record.id);
+    
+    if (existingIndex >= 0) {
+      records[existingIndex] = { ...records[existingIndex], ...record };
+      storage.set('attendanceRecords', records);
+    }
+  } catch (error) {
+    console.error('Error updating attendance record:', error);
+  }
+};
+
 // Export records to CSV format
 export const exportRecordsToCSV = () => {
   if (typeof window === 'undefined') return '';
