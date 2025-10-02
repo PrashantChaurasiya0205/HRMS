@@ -3,13 +3,18 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Clock, BarChart3, History, User, FileText } from 'lucide-react';
+import { signOut } from 'next-auth/react';
+import { Menu, X, Clock, BarChart3, User, FileText, Calendar, LogOut } from 'lucide-react';
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
   const isActive = (path: string) => pathname === path;
+
+  const handleLogout = () => {
+    signOut({ callbackUrl: '/login' });
+  };
 
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50">
@@ -68,6 +73,22 @@ export default function Navigation() {
                           <User className="w-4 h-4 mr-2" />
                           Manager
                         </Link>
+                        <Link
+                          href="/calendar"
+                          className={`flex items-center transition-colors ${
+                            isActive('/calendar') ? 'text-blue-600 font-semibold' : 'text-gray-600 hover:text-blue-600'
+                          }`}
+                        >
+                          <Calendar className="w-4 h-4 mr-2" />
+                          Calendar
+                        </Link>
+                        <button
+                          onClick={handleLogout}
+                          className="flex items-center text-gray-600 hover:text-red-600 transition-colors"
+                        >
+                          <LogOut className="w-4 h-4 mr-2" />
+                          Logout
+                        </button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -133,6 +154,26 @@ export default function Navigation() {
                             <User className="w-4 h-4 mr-3" />
                             Manager
                           </Link>
+                          <Link
+                            href="/calendar"
+                            onClick={() => setIsOpen(false)}
+                            className={`flex items-center px-4 py-2 rounded-lg transition-colors ${
+                              isActive('/calendar') ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-100'
+                            }`}
+                          >
+                            <Calendar className="w-4 h-4 mr-3" />
+                            Calendar
+                          </Link>
+                          <button
+                            onClick={() => {
+                              setIsOpen(false);
+                              handleLogout();
+                            }}
+                            className="flex items-center px-4 py-2 rounded-lg text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors"
+                          >
+                            <LogOut className="w-4 h-4 mr-3" />
+                            Logout
+                          </button>
             </div>
           </div>
         )}

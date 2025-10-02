@@ -22,7 +22,7 @@ export default function Calendar() {
   const [formData, setFormData] = useState({
     name: '',
     date: '',
-    type: 'NATIONAL' as const,
+    type: 'NATIONAL' as 'NATIONAL' | 'PUBLIC' | 'COMPANY' | 'RELIGIOUS',
     description: '',
     isRecurring: false
   });
@@ -62,7 +62,7 @@ export default function Calendar() {
         await fetchHolidays();
         setShowModal(false);
         setEditingHoliday(null);
-        setFormData({ name: '', date: '', type: 'NATIONAL', description: '', isRecurring: false });
+        setFormData({ name: '', date: '', type: 'NATIONAL' as 'NATIONAL' | 'PUBLIC' | 'COMPANY' | 'RELIGIOUS', description: '', isRecurring: false });
       }
     } catch (error) {
       console.error('Error saving holiday:', error);
@@ -160,7 +160,7 @@ export default function Calendar() {
           <button
             onClick={() => {
               setEditingHoliday(null);
-              setFormData({ name: '', date: '', type: 'NATIONAL', description: '', isRecurring: false });
+              setFormData({ name: '', date: '', type: 'NATIONAL' as 'NATIONAL' | 'PUBLIC' | 'COMPANY' | 'RELIGIOUS', description: '', isRecurring: false });
               setShowModal(true);
             }}
             className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
@@ -296,7 +296,7 @@ export default function Calendar() {
                 </label>
                 <select
                   value={formData.type}
-                  onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
+                  onChange={(e) => setFormData({ ...formData, type: e.target.value as 'NATIONAL' | 'PUBLIC' | 'COMPANY' | 'RELIGIOUS' })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
                 >
                   <option value="NATIONAL">National Holiday</option>
