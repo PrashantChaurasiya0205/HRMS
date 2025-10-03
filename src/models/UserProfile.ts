@@ -11,6 +11,7 @@ export interface IUserProfile extends Document {
   employeeId?: string;
   hireDate?: string; // YYYY-MM-DD format
   address?: string;
+  role: 'employee' | 'manager'; // User role for access control
   emergencyContact?: {
     name: string;
     phone: string;
@@ -30,6 +31,7 @@ const userProfileSchema: Schema = new Schema({
   employeeId: { type: String },
   hireDate: { type: String },
   address: { type: String },
+  role: { type: String, enum: ['employee', 'manager'], default: 'employee' },
   emergencyContact: {
     name: { type: String },
     phone: { type: String },

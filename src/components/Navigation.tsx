@@ -3,14 +3,16 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import { Menu, X, Clock, BarChart3, User, FileText, Calendar, LogOut } from 'lucide-react';
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const { data: session } = useSession();
 
   const isActive = (path: string) => pathname === path;
+  const isManager = session?.user?.role === 'manager';
 
   const handleLogout = () => {
     signOut({ callbackUrl: '/login' });
@@ -68,24 +70,28 @@ export default function Navigation() {
               <User className="w-4 h-4 xl:w-5 xl:h-5 mr-1.5 xl:mr-2" />
               <span className="hidden xl:inline text-sm xl:text-base">Profile</span>
             </Link>
-            <Link
-              href="/manager"
-              className={`flex items-center transition-colors duration-200 px-2 py-1.5 rounded-md ${
-                isActive('/manager') ? 'text-blue-600 font-semibold bg-blue-50' : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
-              }`}
-            >
-              <User className="w-4 h-4 xl:w-5 xl:h-5 mr-1.5 xl:mr-2" />
-              <span className="hidden xl:inline text-sm xl:text-base">Manager</span>
-            </Link>
-            <Link
-              href="/calendar"
-              className={`flex items-center transition-colors duration-200 px-2 py-1.5 rounded-md ${
-                isActive('/calendar') ? 'text-blue-600 font-semibold bg-blue-50' : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
-              }`}
-            >
-              <Calendar className="w-4 h-4 xl:w-5 xl:h-5 mr-1.5 xl:mr-2" />
-              <span className="hidden xl:inline text-sm xl:text-base">Calendar</span>
-            </Link>
+            {isManager && (
+              <>
+                <Link
+                  href="/manager"
+                  className={`flex items-center transition-colors duration-200 px-2 py-1.5 rounded-md ${
+                    isActive('/manager') ? 'text-blue-600 font-semibold bg-blue-50' : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <User className="w-4 h-4 xl:w-5 xl:h-5 mr-1.5 xl:mr-2" />
+                  <span className="hidden xl:inline text-sm xl:text-base">Manager</span>
+                </Link>
+                <Link
+                  href="/calendar"
+                  className={`flex items-center transition-colors duration-200 px-2 py-1.5 rounded-md ${
+                    isActive('/calendar') ? 'text-blue-600 font-semibold bg-blue-50' : 'text-gray-600 hover:text-blue-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <Calendar className="w-4 h-4 xl:w-5 xl:h-5 mr-1.5 xl:mr-2" />
+                  <span className="hidden xl:inline text-sm xl:text-base">Calendar</span>
+                </Link>
+              </>
+            )}
             <button
               onClick={handleLogout}
               className="flex items-center px-2 py-1.5 rounded-md text-gray-600 hover:text-red-600 hover:bg-red-50 transition-colors duration-200"
@@ -148,26 +154,30 @@ export default function Navigation() {
                 <User className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 mr-3 sm:mr-4" />
                 <span className="text-sm sm:text-base md:text-lg">Profile</span>
               </Link>
-              <Link
-                href="/manager"
-                onClick={() => setIsOpen(false)}
-                className={`flex items-center px-4 sm:px-6 py-3 sm:py-4 rounded-lg transition-colors duration-200 ${
-                  isActive('/manager') ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-100'
-                }`}
-              >
-                <User className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 mr-3 sm:mr-4" />
-                <span className="text-sm sm:text-base md:text-lg">Manager</span>
-              </Link>
-              <Link
-                href="/calendar"
-                onClick={() => setIsOpen(false)}
-                className={`flex items-center px-4 sm:px-6 py-3 sm:py-4 rounded-lg transition-colors duration-200 ${
-                  isActive('/calendar') ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-100'
-                }`}
-              >
-                <Calendar className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 mr-3 sm:mr-4" />
-                <span className="text-sm sm:text-base md:text-lg">Calendar</span>
-              </Link>
+              {isManager && (
+                <>
+                  <Link
+                    href="/manager"
+                    onClick={() => setIsOpen(false)}
+                    className={`flex items-center px-4 sm:px-6 py-3 sm:py-4 rounded-lg transition-colors duration-200 ${
+                      isActive('/manager') ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    <User className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 mr-3 sm:mr-4" />
+                    <span className="text-sm sm:text-base md:text-lg">Manager</span>
+                  </Link>
+                  <Link
+                    href="/calendar"
+                    onClick={() => setIsOpen(false)}
+                    className={`flex items-center px-4 sm:px-6 py-3 sm:py-4 rounded-lg transition-colors duration-200 ${
+                      isActive('/calendar') ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    <Calendar className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 mr-3 sm:mr-4" />
+                    <span className="text-sm sm:text-base md:text-lg">Calendar</span>
+                  </Link>
+                </>
+              )}
               <button
                 onClick={() => {
                   setIsOpen(false);
