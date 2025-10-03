@@ -8,15 +8,15 @@ import TodaysProgressOnly from '@/components/TodaysProgressOnly';
 export default function DashboardPage() {
   return (
     <AppLayout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
         {/* Header */}
-        <div className="text-center mb-8" id="dashboard">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">Dashboard</h1>
-          <p className="text-gray-600 text-lg">Track your daily attendance and working hours</p>
+        <div className="text-center mb-6 sm:mb-8" id="dashboard">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-2">Dashboard</h1>
+          <p className="text-sm sm:text-base lg:text-lg text-gray-600">Track your daily attendance and working hours</p>
         </div>
 
         {/* Main Content */}
-        <div className="space-y-8 mb-8">
+        <div className="space-y-6 sm:space-y-8 mb-6 sm:mb-8">
           {/* Clock Display */}
           <div id="clock">
             <ClockDisplay />
@@ -34,15 +34,15 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="bg-white rounded-lg p-6 shadow-lg">
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Quick Stats</h3>
-            <p className="text-gray-600">View your attendance summary and working hours</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
+          <div className="bg-white rounded-lg p-4 sm:p-6 shadow-lg">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2">Quick Stats</h3>
+            <p className="text-sm sm:text-base text-gray-600">View your attendance summary and working hours</p>
           </div>
 
-          <div className="bg-white rounded-lg p-6 shadow-lg">
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Lunch Break Info</h3>
-            <p className="text-gray-600">Track your lunch break duration and timing</p>
+          <div className="bg-white rounded-lg p-4 sm:p-6 shadow-lg">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2">Lunch Break Info</h3>
+            <p className="text-sm sm:text-base text-gray-600">Track your lunch break duration and timing</p>
           </div>
         </div>
       </div>

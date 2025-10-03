@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
-import { TrendingUp, Calendar, Clock, Target } from 'lucide-react';
+import { TrendingUp, Calendar, Clock, Target, AlertTriangle } from 'lucide-react';
 
 interface AttendanceRecord {
   _id: string;
@@ -20,6 +20,8 @@ interface AttendanceRecord {
 export default function Statistics() {
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showWarning, setShowWarning] = useState(false);
+  const [maxWorkingHours] = useState(8); // Set maximum working hours
 
   useEffect(() => {
     fetchRecords();
@@ -83,85 +85,97 @@ export default function Statistics() {
     };
   }, [records]);
 
-  const getProgressPercentage = (current: number, target: number = 8) => {
+  const getProgressPercentage = (current: number, target: number = maxWorkingHours) => {
     return Math.min((current / target) * 100, 100);
+  };
+
+  const handleContinueWorking = () => {
+    setShowWarning(false);
+    // Add logic to continue tracking extra hours
+    console.log('Continuing to work - tracking extra hours');
+  };
+
+  const handleClockOut = () => {
+    setShowWarning(false);
+    // Add logic to clock out
+    console.log('Clock out requested');
   };
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
-          <TrendingUp className="w-5 h-5 mr-2 text-blue-600" />
-          Statistics
+      <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8">
+        <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-800 mb-4 sm:mb-6 flex items-center">
+          <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 mr-2 text-blue-600" />
+          <span className="text-sm sm:text-base lg:text-lg">Statistics</span>
         </h3>
-        <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mr-3"></div>
-          <span className="text-gray-600">Loading statistics...</span>
+        <div className="flex items-center justify-center py-6 sm:py-8 lg:py-10">
+          <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 lg:h-10 lg:w-10 border-b-2 border-blue-600 mr-2 sm:mr-3"></div>
+          <span className="text-xs sm:text-sm lg:text-base text-gray-600">Loading statistics...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6">
-      <h3 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
-        <TrendingUp className="w-5 h-5 mr-2 text-blue-600" />
-        Statistics
+    <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8">
+      <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-800 mb-4 sm:mb-6 flex items-center">
+        <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 mr-2 text-blue-600" />
+        <span className="text-sm sm:text-base lg:text-lg">Statistics</span>
       </h3>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
         {/* Total Hours */}
-        <div className="bg-blue-50 rounded-lg p-4">
+        <div className="bg-blue-50 rounded-lg p-3 sm:p-4 lg:p-5">
           <div className="flex items-center justify-between mb-2">
-            <Clock className="w-5 h-5 text-blue-600" />
-            <span className="text-2xl font-bold text-blue-800">{statistics.totalHours.toFixed(1)}h</span>
+            <Clock className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-600" />
+            <span className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-blue-800">{statistics.totalHours.toFixed(1)}h</span>
           </div>
-          <div className="text-sm text-blue-600">Total Hours</div>
+          <div className="text-xs sm:text-sm lg:text-base text-blue-600">Total Hours</div>
         </div>
 
         {/* This Week */}
-        <div className="bg-green-50 rounded-lg p-4">
+        <div className="bg-green-50 rounded-lg p-3 sm:p-4 lg:p-5">
           <div className="flex items-center justify-between mb-2">
-            <Calendar className="w-5 h-5 text-green-600" />
-            <span className="text-2xl font-bold text-green-800">{statistics.weekHours.toFixed(1)}h</span>
+            <Calendar className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-green-600" />
+            <span className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-green-800">{statistics.weekHours.toFixed(1)}h</span>
           </div>
-          <div className="text-sm text-green-600">This Week</div>
+          <div className="text-xs sm:text-sm lg:text-base text-green-600">This Week</div>
         </div>
 
         {/* This Month */}
-        <div className="bg-purple-50 rounded-lg p-4">
+        <div className="bg-purple-50 rounded-lg p-3 sm:p-4 lg:p-5">
           <div className="flex items-center justify-between mb-2">
-            <Target className="w-5 h-5 text-purple-600" />
-            <span className="text-2xl font-bold text-purple-800">{statistics.monthHours.toFixed(1)}h</span>
+            <Target className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-purple-600" />
+            <span className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-purple-800">{statistics.monthHours.toFixed(1)}h</span>
           </div>
-          <div className="text-sm text-purple-600">This Month</div>
+          <div className="text-xs sm:text-sm lg:text-base text-purple-600">This Month</div>
         </div>
 
         {/* Average Daily */}
-        <div className="bg-orange-50 rounded-lg p-4">
+        <div className="bg-orange-50 rounded-lg p-3 sm:p-4 lg:p-5">
           <div className="flex items-center justify-between mb-2">
-            <TrendingUp className="w-5 h-5 text-orange-600" />
-            <span className="text-2xl font-bold text-orange-800">{statistics.avgDailyHours.toFixed(1)}h</span>
+            <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-orange-600" />
+            <span className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-orange-800">{statistics.avgDailyHours.toFixed(1)}h</span>
           </div>
-          <div className="text-sm text-orange-600">Avg Daily</div>
+          <div className="text-xs sm:text-sm lg:text-base text-orange-600">Avg Daily</div>
         </div>
 
         {/* Working Days */}
-        <div className="bg-indigo-50 rounded-lg p-4">
+        <div className="bg-indigo-50 rounded-lg p-3 sm:p-4 lg:p-5">
           <div className="flex items-center justify-between mb-2">
-            <Calendar className="w-5 h-5 text-indigo-600" />
-            <span className="text-2xl font-bold text-indigo-800">{statistics.workingDays}</span>
+            <Calendar className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-indigo-600" />
+            <span className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-indigo-800">{statistics.workingDays}</span>
           </div>
-          <div className="text-sm text-indigo-600">Working Days</div>
+          <div className="text-xs sm:text-sm lg:text-base text-indigo-600">Working Days</div>
         </div>
 
         {/* Total Records */}
-        <div className="bg-gray-50 rounded-lg p-4">
+        <div className="bg-gray-50 rounded-lg p-3 sm:p-4 lg:p-5">
           <div className="flex items-center justify-between mb-2">
-            <Clock className="w-5 h-5 text-gray-600" />
-            <span className="text-2xl font-bold text-gray-800">{statistics.totalRecords}</span>
+            <Clock className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-gray-600" />
+            <span className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-800">{statistics.totalRecords}</span>
           </div>
-          <div className="text-sm text-gray-600">Total Records</div>
+          <div className="text-xs sm:text-sm lg:text-base text-gray-600">Total Records</div>
         </div>
       </div>
 
@@ -171,28 +185,72 @@ export default function Statistics() {
         const todayRecord = records.find(record => record.date === today);
         
         if (todayRecord && todayRecord.totalWorkingHours > 0) {
+          const isOverMaxHours = todayRecord.totalWorkingHours > maxWorkingHours;
+          const progressPercentage = getProgressPercentage(todayRecord.totalWorkingHours);
+          
           return (
-            <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-700">Today's Progress</span>
-                <span className="text-sm text-gray-600">
-                  {todayRecord.totalWorkingHours.toFixed(1)}h / 8h
+            <div className="mt-4 sm:mt-6 lg:mt-8 p-3 sm:p-4 lg:p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
+              <div className="flex items-center justify-between mb-2 sm:mb-3">
+                <span className="text-xs sm:text-sm lg:text-base font-medium text-gray-700">Today's Progress</span>
+                <span className="text-xs sm:text-sm lg:text-base text-gray-600">
+                  {todayRecord.totalWorkingHours.toFixed(1)}h / {maxWorkingHours}h
                 </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-gray-200 rounded-full h-2 sm:h-3 lg:h-4">
                 <div
-                  className="bg-gradient-to-r from-blue-500 to-indigo-500 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${getProgressPercentage(todayRecord.totalWorkingHours)}%` }}
+                  className={`h-full rounded-full transition-all duration-300 ${
+                    isOverMaxHours 
+                      ? 'bg-gradient-to-r from-red-500 to-red-600' 
+                      : 'bg-gradient-to-r from-blue-500 to-indigo-500'
+                  }`}
+                  style={{ width: `${Math.min(progressPercentage, 100)}%` }}
                 ></div>
               </div>
-              <div className="text-xs text-gray-500 mt-1">
-                {getProgressPercentage(todayRecord.totalWorkingHours).toFixed(0)}% of daily target
+              <div className="flex items-center justify-between mt-1 sm:mt-2">
+                <div className="text-xs sm:text-sm lg:text-base text-gray-500">
+                  {progressPercentage.toFixed(0)}% of daily target
+                </div>
+                {isOverMaxHours && (
+                  <div className="flex items-center text-xs sm:text-sm lg:text-base text-red-600">
+                    <AlertTriangle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                    <span>Overtime</span>
+                  </div>
+                )}
               </div>
             </div>
           );
         }
         return null;
       })()}
+
+      {/* Warning Modal for Max Hours */}
+      {showWarning && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl p-4 sm:p-6 lg:p-8 max-w-md w-full">
+            <div className="flex items-center mb-4">
+              <AlertTriangle className="w-6 h-6 sm:w-8 sm:h-8 text-red-500 mr-3" />
+              <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-800">Maximum Hours Reached</h3>
+            </div>
+            <p className="text-sm sm:text-base lg:text-lg text-gray-600 mb-6">
+              You've reached the maximum working hours ({maxWorkingHours}h). Would you like to continue working and track extra hours?
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <button
+                onClick={handleContinueWorking}
+                className="flex-1 bg-blue-600 text-white px-4 py-2 sm:py-3 rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm sm:text-base lg:text-lg font-medium"
+              >
+                Continue Working
+              </button>
+              <button
+                onClick={handleClockOut}
+                className="flex-1 bg-gray-600 text-white px-4 py-2 sm:py-3 rounded-lg hover:bg-gray-700 transition-colors duration-200 text-sm sm:text-base lg:text-lg font-medium"
+              >
+                Clock Out
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -156,12 +156,15 @@ export default function ManagerPage() {
 
               {/* Filter */}
               <div className="mb-6">
-                <div className="flex items-center gap-4">
-                  <Filter className="w-5 h-5 text-gray-600" />
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <Filter className="w-5 h-5 text-gray-600" />
+                    <span className="text-sm font-medium text-gray-700">Filter:</span>
+                  </div>
                   <select
                     value={filter}
                     onChange={(e) => setFilter(e.target.value)}
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-black bg-white"
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-black bg-white w-full sm:w-auto"
                   >
                     <option value="all">All Requests</option>
                     <option value="pending">Pending</option>
@@ -188,20 +191,22 @@ export default function ManagerPage() {
                   <div className="space-y-4">
                     {filteredRequests.map((request) => (
                       <div key={request._id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-3">
-                            <User className="w-5 h-5 text-gray-600" />
-                            <span className="font-semibold text-gray-800">{request.employeeName}</span>
-                            <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getLeaveTypeColor(request.leaveType)}`}>
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                            <div className="flex items-center gap-2">
+                              <User className="w-5 h-5 text-gray-600" />
+                              <span className="font-semibold text-gray-800">{request.employeeName}</span>
+                            </div>
+                            <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getLeaveTypeColor(request.leaveType)} w-fit`}>
                               {request.leaveType.replace('-', ' ').toUpperCase()}
                             </span>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                             {getStatusBadge(request.status)}
                             {request.status === 'pending' && (
                               <button
                                 onClick={() => setSelectedRequest(request)}
-                                className="px-3 py-1 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 transition-colors"
+                                className="px-3 py-1 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 transition-colors w-full sm:w-auto"
                               >
                                 Review
                               </button>
@@ -209,7 +214,7 @@ export default function ManagerPage() {
                           </div>
                         </div>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-gray-600">
                           <div className="flex items-center gap-2">
                             <Calendar className="w-4 h-4" />
                             <span>{request.startDate} to {request.endDate}</span>
@@ -277,7 +282,7 @@ export default function ManagerPage() {
                   />
                 </div>
                 
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={() => handleApprove(selectedRequest._id)}
                     disabled={isProcessing}

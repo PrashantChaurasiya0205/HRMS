@@ -133,28 +133,28 @@ function ProfileContent() {
                   {/* Profile Details */}
                   <div className="lg:col-span-2">
                     <div className="bg-white rounded-xl shadow-lg p-6">
-                      <div className="flex items-center justify-between mb-6">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
                         <h3 className="text-xl font-bold text-gray-800">Personal Information</h3>
                         {!isEditing ? (
                           <button
                             onClick={() => setIsEditing(true)}
-                            className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                            className="flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors w-full sm:w-auto"
                           >
                             <Edit className="w-4 h-4 mr-2" />
                             Edit
                           </button>
                         ) : (
-                          <div className="flex space-x-2">
+                          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                             <button
                               onClick={handleSave}
-                              className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                              className="flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors w-full sm:w-auto"
                             >
                               <Save className="w-4 h-4 mr-2" />
                               Save
                             </button>
                             <button
                               onClick={handleCancel}
-                              className="flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                              className="flex items-center justify-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors w-full sm:w-auto"
                             >
                               <X className="w-4 h-4 mr-2" />
                               Cancel
@@ -367,7 +367,7 @@ function ProfileContent() {
                 </div>
 
                 {/* Quick Stats */}
-                <div className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                   <div className="bg-white rounded-lg p-6 shadow-lg text-center">
                     <Clock className="w-8 h-8 text-blue-600 mx-auto mb-3" />
                     <h3 className="text-2xl font-bold text-blue-600">{stats.avgDailyHours.toFixed(1)}h</h3>

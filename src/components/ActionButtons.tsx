@@ -248,12 +248,12 @@ export default function ActionButtons() {
     <div className="bg-white rounded-xl shadow-lg p-6">
       <h3 className="text-lg font-semibold text-gray-800 mb-4 text-center">Actions</h3>
       
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         {/* Primary Action */}
         <button
           onClick={buttonConfig.primary.onClick}
           disabled={buttonConfig.primary.disabled || isLoading}
-          className={`w-full flex items-center justify-center px-6 py-4 rounded-lg font-semibold text-lg transition-all duration-200 transform ${
+          className={`w-full flex items-center justify-center px-4 sm:px-6 py-3 sm:py-4 rounded-lg font-semibold text-base sm:text-lg transition-all duration-200 transform ${
             buttonConfig.primary.disabled || isLoading 
               ? 'opacity-50 cursor-not-allowed' 
               : 'hover:scale-105'
@@ -272,7 +272,7 @@ export default function ActionButtons() {
           <button
             onClick={buttonConfig.secondary.onClick}
             disabled={buttonConfig.secondary.disabled || isLoading}
-            className={`w-full flex items-center justify-center px-6 py-4 rounded-lg font-semibold text-lg transition-all duration-200 transform ${
+            className={`w-full flex items-center justify-center px-4 sm:px-6 py-3 sm:py-4 rounded-lg font-semibold text-base sm:text-lg transition-all duration-200 transform ${
               buttonConfig.secondary.disabled || isLoading 
                 ? 'opacity-50 cursor-not-allowed' 
                 : 'hover:scale-105'
@@ -289,9 +289,9 @@ export default function ActionButtons() {
       </div>
 
       {/* Status Info */}
-      <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-        <div className="text-sm text-gray-600 mb-2">Current Status:</div>
-        <div className="font-semibold text-gray-800">
+      <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-gray-50 rounded-lg">
+        <div className="text-xs sm:text-sm text-gray-600 mb-1 sm:mb-2">Current Status:</div>
+        <div className="font-semibold text-gray-800 text-sm sm:text-base">
           {attendanceStatus.hasCheckedOut && 'Day completed'}
           {!attendanceStatus.hasCheckedIn && !attendanceStatus.hasCheckedOut && 'Ready to start your day'}
           {attendanceStatus.hasCheckedIn && attendanceStatus.currentStatus === 'WORKING' && 'Currently working'}

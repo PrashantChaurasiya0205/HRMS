@@ -271,7 +271,7 @@ export default function TodaysProgressOnly() {
       </h3>
 
       <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
           <span className="text-sm font-medium text-gray-700">Today's Progress</span>
           <span className="text-sm text-gray-600">
             {Math.floor(sessionTime.hours)}h {Math.floor((sessionTime.hours % 1) * 60)}m / 8h
@@ -298,11 +298,13 @@ export default function TodaysProgressOnly() {
             </div>
           ))}
         </div>
-        <div className="text-xs text-gray-500 mt-1">
-          {sessionTime.percentage.toFixed(0)}% of daily target
-        </div>
-        <div className="text-xs text-gray-500 mt-1">
-          Clocked in at: {todayRecord?.clockIn ? new Date(todayRecord.clockIn).toLocaleTimeString() : 'N/A'}
+        <div className="flex flex-col sm:flex-row sm:justify-between gap-1 mt-2">
+          <div className="text-xs text-gray-500">
+            {sessionTime.percentage.toFixed(0)}% of daily target
+          </div>
+          <div className="text-xs text-gray-500">
+            Clocked in at: {todayRecord?.clockIn ? new Date(todayRecord.clockIn).toLocaleTimeString() : 'N/A'}
+          </div>
         </div>
         {attendanceStatus.hasCheckedOut && todayRecord?.clockOut && (
           <div className="text-xs text-gray-500 mt-1">

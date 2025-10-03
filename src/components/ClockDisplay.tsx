@@ -104,37 +104,37 @@ export default function ClockDisplay() {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+    <div className="bg-white rounded-xl shadow-lg p-3 xs:p-4 sm:p-6 mb-3 xs:mb-4 sm:mb-6">
       <div className="text-center">
         {/* Current Time */}
-        <div className="mb-4">
-          <div className="flex items-center justify-center mb-2">
-            <Clock className="w-6 h-6 text-blue-600 mr-2" />
-            <span className="text-2xl font-bold text-gray-800">{format(currentTime, 'HH:mm:ss')}</span>
+        <div className="mb-3 sm:mb-4">
+          <div className="flex items-center justify-center mb-1 sm:mb-2">
+            <Clock className="w-3 h-3 xs:w-4 xs:h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-600 mr-1 xs:mr-1.5 sm:mr-2" />
+            <span className="text-base xs:text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-800">{format(currentTime, 'HH:mm:ss')}</span>
           </div>
-          <p className="text-gray-600 text-lg">{format(currentTime, 'EEEE, MMMM do, yyyy')}</p>
+          <p className="text-gray-600 text-xs xs:text-sm sm:text-base lg:text-lg px-2">{format(currentTime, 'EEEE, MMMM do, yyyy')}</p>
         </div>
 
         {/* Status */}
-        <div className="mb-4">
-          <div className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${getStatusColor()} bg-gray-50`}>
-            <div className={`w-2 h-2 rounded-full mr-2 ${
+        <div className="mb-2 xs:mb-3 sm:mb-4">
+          <div className={`inline-flex items-center px-2 xs:px-3 sm:px-4 py-1 xs:py-1.5 sm:py-2 rounded-full text-xs xs:text-sm sm:text-base font-medium ${getStatusColor()} bg-gray-50`}>
+            <div className={`w-1 h-1 xs:w-1.5 xs:h-1.5 sm:w-2 sm:h-2 rounded-full mr-1 xs:mr-1.5 sm:mr-2 ${
               attendanceStatus.currentStatus === 'WORKING' ? 'bg-green-500' :
               attendanceStatus.currentStatus === 'LUNCH_BREAK' ? 'bg-orange-500' :
               attendanceStatus.currentStatus === 'CLOCKED_OUT' ? 'bg-red-500' : 'bg-gray-500'
             }`}></div>
-            {getStatusText()}
+            <span className="text-xs xs:text-sm sm:text-base">{getStatusText()}</span>
           </div>
         </div>
 
         {/* Session Duration */}
         {sessionStartTime && (
-          <div className="bg-blue-50 rounded-lg p-4">
-            <div className="flex items-center justify-center mb-2">
-              <Timer className="w-5 h-5 text-blue-600 mr-2" />
-              <span className="text-lg font-semibold text-blue-800">Session Duration</span>
+          <div className="bg-blue-50 rounded-lg p-2 xs:p-3 sm:p-4 lg:p-5">
+            <div className="flex items-center justify-center mb-1 sm:mb-2">
+              <Timer className="w-3 h-3 xs:w-4 xs:h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-600 mr-1 xs:mr-1.5 sm:mr-2" />
+              <span className="text-xs xs:text-sm sm:text-base lg:text-lg font-semibold text-blue-800">Session Duration</span>
             </div>
-            <div className="text-3xl font-bold text-blue-900">
+            <div className="text-base xs:text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-blue-900">
               {getSessionDurationDisplay()}
             </div>
           </div>
@@ -142,9 +142,9 @@ export default function ClockDisplay() {
 
         {/* Working Hours Today */}
         {currentRecord && (
-          <div className="mt-4 bg-green-50 rounded-lg p-4">
-            <div className="text-sm text-green-700 mb-1">Working Hours Today</div>
-            <div className="text-2xl font-bold text-green-800">
+          <div className="mt-3 sm:mt-4 bg-green-50 rounded-lg p-2 xs:p-3 sm:p-4 lg:p-5">
+            <div className="text-xs xs:text-sm sm:text-base text-green-700 mb-1">Working Hours Today</div>
+            <div className="text-base xs:text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-green-800">
               {currentRecord.totalWorkingHours.toFixed(2)} hours
             </div>
           </div>

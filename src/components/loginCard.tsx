@@ -44,7 +44,7 @@ const LoginCard = () => {
       </div>
 
       <div className="relative z-10 w-full max-w-6xl mx-auto">
-        <div className="grid lg:grid-cols-2 gap-8 items-center">
+        <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 items-center">
           {/* Left Side - Branding */}
           <div className="text-white space-y-8">
             <div className="flex items-center space-x-4">
@@ -62,21 +62,21 @@ const LoginCard = () => {
               </div>
             </div>
 
-            <div className="space-y-6">
-              <h2 className="text-3xl font-bold leading-tight">
+            <div className="space-y-4 sm:space-y-6">
+              <h2 className="text-2xl sm:text-3xl font-bold leading-tight">
                 Transform Your
                 <span className="block bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                   Workforce Management
                 </span>
               </h2>
               
-              <p className="text-xl text-gray-300 leading-relaxed">
+              <p className="text-lg sm:text-xl text-gray-300 leading-relaxed">
                 One-stop solution for complete HRMS - Advanced analytics, 
                 intelligent automation, and seamless employee experience.
               </p>
 
               {/* Feature Grid */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="flex items-center space-x-3 p-4 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
                   <Shield className="w-6 h-6 text-green-400" />
                   <span className="text-sm font-medium">Secure & Compliant</span>
@@ -99,10 +99,10 @@ const LoginCard = () => {
 
           {/* Right Side - Login Card */}
           <div className="relative">
-            <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-8 border border-white/20 shadow-2xl">
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-bold text-white mb-2">Welcome</h3>
-                <p className="text-gray-300">{message}</p>
+            <div className="bg-white/10 backdrop-blur-xl rounded-3xl p-4 sm:p-6 lg:p-8 border border-white/20 shadow-2xl">
+              <div className="text-center mb-6 sm:mb-8">
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">Welcome</h3>
+                <p className="text-sm sm:text-base text-gray-300">{message}</p>
               </div>
               
               {showSpinner ? (
@@ -117,7 +117,7 @@ const LoginCard = () => {
                 <button
                   onClick={handleGoogleSignIn}
                   disabled={isLoading}
-                  className="w-full group relative overflow-hidden bg-white text-gray-900 font-semibold py-4 px-6 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full group relative overflow-hidden bg-white text-gray-900 font-semibold py-3 sm:py-4 px-4 sm:px-6 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600 opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
                   <div className="relative flex items-center justify-center space-x-3">
@@ -139,19 +139,21 @@ const LoginCard = () => {
                         d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                       />
                     </svg>
-                    <span className="text-lg">Continue with Google</span>
+                    <span className="text-base sm:text-lg">Continue with Google</span>
                   </div>
                 </button>
               )}
               
-              <div className="mt-8 text-center">
-                <div className="flex items-center justify-center space-x-2 text-sm text-white/60">
-                  <Shield className="w-4 h-4" />
-                  <span>Enterprise-grade security</span>
-                </div>
-                <div className="flex items-center justify-center space-x-2 text-sm text-white/60 mt-2">
-                  <Zap className="w-4 h-4" />
-                  <span>Powered by AI & Machine Learning</span>
+              <div className="mt-6 sm:mt-8 text-center">
+                <div className="flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-2 text-xs sm:text-sm text-white/60">
+                  <div className="flex items-center space-x-1">
+                    <Shield className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span>Enterprise-grade security</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <Zap className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span>Powered by AI & Machine Learning</span>
+                  </div>
                 </div>
               </div>
             </div>

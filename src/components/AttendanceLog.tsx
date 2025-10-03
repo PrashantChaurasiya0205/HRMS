@@ -131,7 +131,7 @@ export default function AttendanceLog() {
       </div>
 
       {/* Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <input
@@ -167,15 +167,15 @@ export default function AttendanceLog() {
 
       {/* Records Table */}
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full min-w-full">
           <thead>
             <tr className="border-b border-gray-200">
-              <th className="text-left py-3 px-4 font-semibold text-gray-700">Date</th>
-              <th className="text-left py-3 px-4 font-semibold text-gray-700">Clock In</th>
-              <th className="text-left py-3 px-4 font-semibold text-gray-700">Clock Out</th>
-              <th className="text-left py-3 px-4 font-semibold text-gray-700">Lunch</th>
-              <th className="text-left py-3 px-4 font-semibold text-gray-700">Hours</th>
-              <th className="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
+              <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm">Date</th>
+              <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm">Clock In</th>
+              <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm">Clock Out</th>
+              <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm">Lunch</th>
+              <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm">Hours</th>
+              <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm">Status</th>
             </tr>
           </thead>
           <tbody>
@@ -197,30 +197,30 @@ export default function AttendanceLog() {
             ) : (
               filteredRecords.map((record) => (
                 <tr key={record._id} className="border-b border-gray-100 hover:bg-gray-50">
-                  <td className="py-3 px-4 text-gray-800">
+                  <td className="py-2 sm:py-3 px-2 sm:px-4 text-gray-800 text-xs sm:text-sm">
                     {format(new Date(record.date), 'MMM dd, yyyy')}
                   </td>
-                  <td className="py-3 px-4 text-gray-600">
+                  <td className="py-2 sm:py-3 px-2 sm:px-4 text-gray-600 text-xs sm:text-sm">
                     <div className="flex items-center">
-                      <Clock className="w-4 h-4 mr-2 text-blue-500" />
+                      <Clock className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-blue-500" />
                       {format(new Date(record.clockIn), 'HH:mm:ss')}
                     </div>
                   </td>
-                  <td className="py-3 px-4 text-gray-600">
+                  <td className="py-2 sm:py-3 px-2 sm:px-4 text-gray-600 text-xs sm:text-sm">
                     {record.clockOut ? (
                       <div className="flex items-center">
-                        <Clock className="w-4 h-4 mr-2 text-red-500" />
+                        <Clock className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-red-500" />
                         {format(new Date(record.clockOut), 'HH:mm:ss')}
                       </div>
                     ) : (
                       <span className="text-gray-400">-</span>
                     )}
                   </td>
-                  <td className="py-3 px-4 text-gray-600">
+                  <td className="py-2 sm:py-3 px-2 sm:px-4 text-gray-600 text-xs sm:text-sm">
                     {record.lunchStart ? (
                       <div className="flex items-center">
-                        <Coffee className="w-4 h-4 mr-2 text-orange-500" />
-                        <div className="text-sm">
+                        <Coffee className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-orange-500" />
+                        <div className="text-xs">
                           <div>{format(new Date(record.lunchStart), 'HH:mm:ss')}</div>
                           {record.lunchEnd && (
                             <div className="text-xs text-gray-500">
@@ -233,10 +233,10 @@ export default function AttendanceLog() {
                       <span className="text-gray-400">-</span>
                     )}
                   </td>
-                  <td className="py-3 px-4 text-gray-800 font-semibold">
+                  <td className="py-2 sm:py-3 px-2 sm:px-4 text-gray-800 font-semibold text-xs sm:text-sm">
                     {record.totalWorkingHours.toFixed(2)}h
                   </td>
-                  <td className="py-3 px-4">
+                  <td className="py-2 sm:py-3 px-2 sm:px-4">
                     {getStatusBadge(record.status)}
                   </td>
                 </tr>
@@ -248,23 +248,23 @@ export default function AttendanceLog() {
 
       {/* Summary */}
       {filteredRecords.length > 0 && (
-        <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+        <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-blue-50 rounded-lg">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-center">
             <div>
-              <div className="text-2xl font-bold text-blue-800">{filteredRecords.length}</div>
-              <div className="text-sm text-blue-600">Total Records</div>
+              <div className="text-xl sm:text-2xl font-bold text-blue-800">{filteredRecords.length}</div>
+              <div className="text-xs sm:text-sm text-blue-600">Total Records</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-blue-800">
+              <div className="text-xl sm:text-2xl font-bold text-blue-800">
                 {filteredRecords.reduce((sum, record) => sum + record.totalWorkingHours, 0).toFixed(1)}h
               </div>
-              <div className="text-sm text-blue-600">Total Hours</div>
+              <div className="text-xs sm:text-sm text-blue-600">Total Hours</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-blue-800">
+              <div className="text-xl sm:text-2xl font-bold text-blue-800">
                 {(filteredRecords.reduce((sum, record) => sum + record.totalWorkingHours, 0) / filteredRecords.length).toFixed(1)}h
               </div>
-              <div className="text-sm text-blue-600">Average per Day</div>
+              <div className="text-xs sm:text-sm text-blue-600">Average per Day</div>
             </div>
           </div>
         </div>
