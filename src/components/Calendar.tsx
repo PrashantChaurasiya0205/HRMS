@@ -13,7 +13,11 @@ interface Holiday {
   isRecurring: boolean;
 }
 
-export default function Calendar() {
+interface CalendarProps {
+  isManager?: boolean;
+}
+
+export default function Calendar({ isManager = false }: CalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [loading, setLoading] = useState(true);
@@ -157,18 +161,20 @@ export default function Calendar() {
           >
             <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
-          <button
-            onClick={() => {
-              setEditingHoliday(null);
-              setFormData({ name: '', date: '', type: 'NATIONAL' as 'NATIONAL' | 'PUBLIC' | 'COMPANY' | 'RELIGIOUS', description: '', isRecurring: false });
-              setShowModal(true);
-            }}
-            className="flex items-center px-2 sm:px-4 py-1 sm:py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-xs sm:text-sm"
-          >
-            <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-            <span className="hidden sm:inline">Add Holiday</span>
-            <span className="sm:hidden">Add</span>
-          </button>
+          {isManager && (
+            <button
+              onClick={() => {
+                setEditingHoliday(null);
+                setFormData({ name: '', date: '', type: 'NATIONAL' as 'NATIONAL' | 'PUBLIC' | 'COMPANY' | 'RELIGIOUS', description: '', isRecurring: false });
+                setShowModal(true);
+              }}
+              className="flex items-center px-2 sm:px-4 py-1 sm:py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-xs sm:text-sm"
+            >
+              <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Add Holiday</span>
+              <span className="sm:hidden">Add</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -240,27 +246,29 @@ export default function Calendar() {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center space-x-2 self-end sm:self-auto">
-                <button
-                  onClick={() => handleEdit(holiday)}
-                  className="p-1 text-gray-400 hover:text-blue-600"
-                >
-                  <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
-                </button>
-                <button
-                  onClick={() => handleDelete(holiday._id)}
-                  className="p-1 text-gray-400 hover:text-red-600"
-                >
-                  <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
-                </button>
-              </div>
+              {isManager && (
+                <div className="flex items-center space-x-2 self-end sm:self-auto">
+                  <button
+                    onClick={() => handleEdit(holiday)}
+                    className="p-1 text-gray-400 hover:text-blue-600"
+                  >
+                    <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(holiday._id)}
+                    className="p-1 text-gray-400 hover:text-red-600"
+                  >
+                    <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>
       </div>
 
-      {/* Add/Edit Modal */}
-      {showModal && (
+      {/* Add/Edit Modal - Only show for managers */}
+      {showModal && isManager && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4">

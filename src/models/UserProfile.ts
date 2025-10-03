@@ -11,6 +11,14 @@ export interface IUserProfile extends Document {
   employeeId?: string;
   hireDate?: string; // YYYY-MM-DD format
   address?: string;
+  role: 'employee' | 'manager'; // User role for access control
+  leaveBalance: {
+    sick: number;
+    vacation: number;
+    personal: number;
+    workFromHome: number;
+    emergency: number;
+  };
   emergencyContact?: {
     name: string;
     phone: string;
@@ -30,6 +38,14 @@ const userProfileSchema: Schema = new Schema({
   employeeId: { type: String },
   hireDate: { type: String },
   address: { type: String },
+  role: { type: String, enum: ['employee', 'manager'], default: 'employee' },
+  leaveBalance: {
+    sick: { type: Number, default: 10 },
+    vacation: { type: Number, default: 20 },
+    personal: { type: Number, default: 5 },
+    workFromHome: { type: Number, default: 12 },
+    emergency: { type: Number, default: 3 }
+  },
   emergencyContact: {
     name: { type: String },
     phone: { type: String },
