@@ -37,13 +37,23 @@ export async function POST(request: NextRequest) {
       ? (record.lunchEnd.getTime() - record.lunchStart.getTime()) / (1000 * 60 * 60)
       : 0;
 
+    const finalWorkingHours = totalWorkingHours - lunchDuration;
+    
+    // Calculate regular and extra hours
+    const maxWorkingHours = 8;
+    const regularHours = Math.min(finalWorkingHours, maxWorkingHours);
+    const extraHours = Math.max(0, finalWorkingHours - maxWorkingHours);
+
     // Update the record
     await Attendance.findOneAndUpdate(
       { userId: session.user.email, date: today },
       {
         clockOut: now,
-        totalWorkingHours: totalWorkingHours - lunchDuration,
+        totalWorkingHours: finalWorkingHours,
         lunchDuration,
+        regularHours,
+        extraHours,
+        isExtraTimeEnabled: extraHours > 0,
         status: 'CLOCKED_OUT'
       }
     );
@@ -51,7 +61,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ 
       message: 'Successfully checked out',
       clockOut: now,
-      totalWorkingHours: totalWorkingHours - lunchDuration,
+      totalWorkingHours: finalWorkingHours,
+      regularHours,
+      extraHours,
       status: 'CLOCKED_OUT'
     });
   } catch (error) {

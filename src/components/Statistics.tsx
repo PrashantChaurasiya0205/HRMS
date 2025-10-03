@@ -22,6 +22,7 @@ export default function Statistics() {
   const [loading, setLoading] = useState(true);
   const [showWarning, setShowWarning] = useState(false);
   const [maxWorkingHours] = useState(8); // Set maximum working hours
+  const [extraTimeReason, setExtraTimeReason] = useState('');
 
   useEffect(() => {
     fetchRecords();
@@ -67,12 +68,45 @@ export default function Statistics() {
     const weekHours = thisWeekRecords.reduce((sum, record) => sum + record.totalWorkingHours, 0);
     const monthHours = thisMonthRecords.reduce((sum, record) => sum + record.totalWorkingHours, 0);
 
+    // Calculate extra hours (overtime)
+    const totalExtraHours = records.reduce((sum, record) => {
+      const extraHours = Math.max(0, record.totalWorkingHours - maxWorkingHours);
+      return sum + extraHours;
+    }, 0);
+
+    const weekExtraHours = thisWeekRecords.reduce((sum, record) => {
+      const extraHours = Math.max(0, record.totalWorkingHours - maxWorkingHours);
+      return sum + extraHours;
+    }, 0);
+
+    const monthExtraHours = thisMonthRecords.reduce((sum, record) => {
+      const extraHours = Math.max(0, record.totalWorkingHours - maxWorkingHours);
+      return sum + extraHours;
+    }, 0);
+
+    // Calculate regular hours (within max limit)
+    const totalRegularHours = records.reduce((sum, record) => {
+      const regularHours = Math.min(record.totalWorkingHours, maxWorkingHours);
+      return sum + regularHours;
+    }, 0);
+
+    const weekRegularHours = thisWeekRecords.reduce((sum, record) => {
+      const regularHours = Math.min(record.totalWorkingHours, maxWorkingHours);
+      return sum + regularHours;
+    }, 0);
+
+    const monthRegularHours = thisMonthRecords.reduce((sum, record) => {
+      const regularHours = Math.min(record.totalWorkingHours, maxWorkingHours);
+      return sum + regularHours;
+    }, 0);
+
     // Calculate averages
     const avgDailyHours = records.length > 0 ? totalHours / records.length : 0;
     const avgWeekHours = thisWeekRecords.length > 0 ? weekHours / thisWeekRecords.length : 0;
 
     // Calculate working days
     const workingDays = records.filter(record => record.totalWorkingHours > 0).length;
+    const overtimeDays = records.filter(record => record.totalWorkingHours > maxWorkingHours).length;
 
     return {
       totalHours,
@@ -82,23 +116,91 @@ export default function Statistics() {
       avgWeekHours,
       workingDays,
       totalRecords: records.length,
+      totalExtraHours,
+      weekExtraHours,
+      monthExtraHours,
+      totalRegularHours,
+      weekRegularHours,
+      monthRegularHours,
+      overtimeDays,
     };
-  }, [records]);
+  }, [records, maxWorkingHours]);
 
   const getProgressPercentage = (current: number, target: number = maxWorkingHours) => {
     return Math.min((current / target) * 100, 100);
   };
 
-  const handleContinueWorking = () => {
-    setShowWarning(false);
-    // Add logic to continue tracking extra hours
-    console.log('Continuing to work - tracking extra hours');
+  const handleContinueWorking = async () => {
+    if (!extraTimeReason.trim()) {
+      alert('Please provide a reason for working extra time.');
+      return;
+    }
+    
+    try {
+      // Update the current attendance record with extra time reason
+      const today = new Date().toLocaleDateString('en-CA');
+      const todayRecord = records.find(record => record.date === today);
+      
+      if (todayRecord) {
+        const response = await fetch('/api/attendance/update-extra-time', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            recordId: todayRecord._id,
+            extraTimeReason: extraTimeReason,
+            isContinuing: true
+          }),
+        });
+        
+        if (response.ok) {
+          console.log('Extra time reason saved and continuing to work');
+          setShowWarning(false);
+          setExtraTimeReason('');
+          // Refresh records to show updated data
+          fetchRecords();
+        } else {
+          console.error('Failed to update extra time reason');
+        }
+      }
+    } catch (error) {
+      console.error('Error updating extra time:', error);
+    }
   };
 
-  const handleClockOut = () => {
-    setShowWarning(false);
-    // Add logic to clock out
-    console.log('Clock out requested');
+  const handleClockOut = async () => {
+    try {
+      // Update the current attendance record with extra time reason and clock out
+      const today = new Date().toLocaleDateString('en-CA');
+      const todayRecord = records.find(record => record.date === today);
+      
+      if (todayRecord) {
+        const response = await fetch('/api/attendance/update-extra-time', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            recordId: todayRecord._id,
+            extraTimeReason: extraTimeReason,
+            isContinuing: false
+          }),
+        });
+        
+        if (response.ok) {
+          console.log('Extra time reason saved and clocking out');
+          setShowWarning(false);
+          setExtraTimeReason('');
+          // Refresh records to show updated data
+          fetchRecords();
+        } else {
+          console.error('Failed to update extra time reason');
+        }
+      }
+    } catch (error) {
+      console.error('Error updating extra time:', error);
+    }
   };
 
   if (loading) {
@@ -179,6 +281,87 @@ export default function Statistics() {
         </div>
       </div>
 
+      {/* Extra Hours Section */}
+      <div className="mt-4 sm:mt-6 lg:mt-8">
+        <h4 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-800 mb-3 sm:mb-4 flex items-center">
+          <Clock className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 mr-2 text-indigo-600" />
+          <span className="text-xs sm:text-sm lg:text-base">Extra Hours (Overtime)</span>
+        </h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+          {/* Total Extra Hours */}
+          <div className="bg-indigo-50 rounded-lg p-3 sm:p-4 lg:p-5">
+            <div className="flex items-center justify-between mb-2">
+              <Clock className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-indigo-600" />
+              <span className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-indigo-800">{statistics.totalExtraHours.toFixed(1)}h</span>
+            </div>
+            <div className="text-xs sm:text-sm lg:text-base text-indigo-600">Total Extra Hours</div>
+          </div>
+
+          {/* This Week Extra */}
+          <div className="bg-indigo-50 rounded-lg p-3 sm:p-4 lg:p-5">
+            <div className="flex items-center justify-between mb-2">
+              <Calendar className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-indigo-600" />
+              <span className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-indigo-800">{statistics.weekExtraHours.toFixed(1)}h</span>
+            </div>
+            <div className="text-xs sm:text-sm lg:text-base text-indigo-600">This Week Extra</div>
+          </div>
+
+          {/* This Month Extra */}
+          <div className="bg-indigo-50 rounded-lg p-3 sm:p-4 lg:p-5">
+            <div className="flex items-center justify-between mb-2">
+              <Target className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-indigo-600" />
+              <span className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-indigo-800">{statistics.monthExtraHours.toFixed(1)}h</span>
+            </div>
+            <div className="text-xs sm:text-sm lg:text-base text-indigo-600">This Month Extra</div>
+          </div>
+
+          {/* Overtime Days */}
+          <div className="bg-indigo-50 rounded-lg p-3 sm:p-4 lg:p-5">
+            <div className="flex items-center justify-between mb-2">
+              <Calendar className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-indigo-600" />
+              <span className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-indigo-800">{statistics.overtimeDays}</span>
+            </div>
+            <div className="text-xs sm:text-sm lg:text-base text-indigo-600">Overtime Days</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Regular Hours Breakdown */}
+      <div className="mt-4 sm:mt-6 lg:mt-8">
+        <h4 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-800 mb-3 sm:mb-4 flex items-center">
+          <Clock className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 mr-2 text-blue-600" />
+          <span className="text-xs sm:text-sm lg:text-base">Regular Hours Breakdown</span>
+        </h4>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+          {/* Total Regular Hours */}
+          <div className="bg-blue-50 rounded-lg p-3 sm:p-4 lg:p-5">
+            <div className="flex items-center justify-between mb-2">
+              <Clock className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-600" />
+              <span className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-blue-800">{statistics.totalRegularHours.toFixed(1)}h</span>
+            </div>
+            <div className="text-xs sm:text-sm lg:text-base text-blue-600">Total Regular Hours</div>
+          </div>
+
+          {/* This Week Regular */}
+          <div className="bg-green-50 rounded-lg p-3 sm:p-4 lg:p-5">
+            <div className="flex items-center justify-between mb-2">
+              <Calendar className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-green-600" />
+              <span className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-green-800">{statistics.weekRegularHours.toFixed(1)}h</span>
+            </div>
+            <div className="text-xs sm:text-sm lg:text-base text-green-600">This Week Regular</div>
+          </div>
+
+          {/* This Month Regular */}
+          <div className="bg-purple-50 rounded-lg p-3 sm:p-4 lg:p-5">
+            <div className="flex items-center justify-between mb-2">
+              <Target className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-purple-600" />
+              <span className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-purple-800">{statistics.monthRegularHours.toFixed(1)}h</span>
+            </div>
+            <div className="text-xs sm:text-sm lg:text-base text-purple-600">This Month Regular</div>
+          </div>
+        </div>
+      </div>
+
       {/* Today's Progress - Find today's record */}
       {(() => {
         const today = new Date().toLocaleDateString('en-CA');
@@ -226,14 +409,30 @@ export default function Statistics() {
       {/* Warning Modal for Max Hours */}
       {showWarning && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl p-4 sm:p-6 lg:p-8 max-w-md w-full">
+          <div className="bg-white rounded-xl shadow-2xl p-4 sm:p-6 lg:p-8 max-w-lg w-full">
             <div className="flex items-center mb-4">
               <AlertTriangle className="w-6 h-6 sm:w-8 sm:h-8 text-red-500 mr-3" />
               <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-800">Maximum Hours Reached</h3>
             </div>
-            <p className="text-sm sm:text-base lg:text-lg text-gray-600 mb-6">
+            <p className="text-sm sm:text-base lg:text-lg text-gray-600 mb-4">
               You've reached the maximum working hours ({maxWorkingHours}h). Would you like to continue working and track extra hours?
             </p>
+            
+            {/* Extra Time Reason Input */}
+            <div className="mb-6">
+              <label className="block text-sm sm:text-base lg:text-lg font-medium text-gray-700 mb-2">
+                Reason for Extra Time (Required)
+              </label>
+              <textarea
+                value={extraTimeReason}
+                onChange={(e) => setExtraTimeReason(e.target.value)}
+                placeholder="Please provide a reason for working extra time..."
+                className="w-full px-3 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base lg:text-lg resize-none"
+                rows={3}
+                required
+              />
+            </div>
+            
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <button
                 onClick={handleContinueWorking}

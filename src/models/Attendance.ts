@@ -9,6 +9,10 @@ export interface IAttendance extends Document {
   lunchEnd?: Date;
   totalWorkingHours: number;
   lunchDuration: number;
+  regularHours: number; // Hours within normal working time (max 8 hours)
+  extraHours: number; // Hours beyond normal working time
+  extraTimeReason?: string; // Reason for working extra time
+  isExtraTimeEnabled: boolean; // Whether extra time tracking is enabled
   status: 'IDLE' | 'WORKING' | 'LUNCH_BREAK' | 'CLOCKED_OUT';
 }
 
@@ -21,6 +25,10 @@ const attendanceSchema: Schema = new Schema({
   lunchEnd: { type: Date },
   totalWorkingHours: { type: Number, default: 0 },
   lunchDuration: { type: Number, default: 0 },
+  regularHours: { type: Number, default: 0 },
+  extraHours: { type: Number, default: 0 },
+  extraTimeReason: { type: String },
+  isExtraTimeEnabled: { type: Boolean, default: false },
   status: { type: String, enum: ['IDLE', 'WORKING', 'LUNCH_BREAK', 'CLOCKED_OUT'], default: 'IDLE' },
 }, {
   timestamps: true,

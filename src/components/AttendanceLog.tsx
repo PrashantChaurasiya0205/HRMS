@@ -14,6 +14,9 @@ interface AttendanceRecord {
   lunchEnd?: string;
   totalWorkingHours: number;
   lunchDuration: number;
+  regularHours?: number;
+  extraHours?: number;
+  extraTimeReason?: string;
   status: string;
 }
 
@@ -174,14 +177,16 @@ export default function AttendanceLog() {
               <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm">Clock In</th>
               <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm">Clock Out</th>
               <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm">Lunch</th>
-              <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm">Hours</th>
+              <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm">Regular Hours</th>
+              <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm">Extra Hours</th>
+              <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm">Total Hours</th>
               <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-semibold text-gray-700 text-xs sm:text-sm">Status</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={6} className="text-center py-8 text-gray-500">
+                <td colSpan={8} className="text-center py-8 text-gray-500">
                   <div className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-3"></div>
                     Loading records...
@@ -190,7 +195,7 @@ export default function AttendanceLog() {
               </tr>
             ) : filteredRecords.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center py-8 text-gray-500">
+                <td colSpan={8} className="text-center py-8 text-gray-500">
                   No attendance records found
                 </td>
               </tr>
@@ -231,6 +236,23 @@ export default function AttendanceLog() {
                       </div>
                     ) : (
                       <span className="text-gray-400">-</span>
+                    )}
+                  </td>
+                  <td className="py-2 sm:py-3 px-2 sm:px-4 text-gray-800 font-semibold text-xs sm:text-sm">
+                    {record.regularHours ? record.regularHours.toFixed(2) : '0.00'}h
+                  </td>
+                  <td className="py-2 sm:py-3 px-2 sm:px-4 text-gray-800 font-semibold text-xs sm:text-sm">
+                    {record.extraHours ? (
+                      <div className="flex items-center">
+                        <span className="text-red-600">{record.extraHours.toFixed(2)}h</span>
+                        {record.extraTimeReason && (
+                          <span className="ml-1 text-xs text-gray-500" title={record.extraTimeReason}>
+                            ℹ️
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      '0.00h'
                     )}
                   </td>
                   <td className="py-2 sm:py-3 px-2 sm:px-4 text-gray-800 font-semibold text-xs sm:text-sm">

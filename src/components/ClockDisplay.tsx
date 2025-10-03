@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { Clock, Timer } from 'lucide-react';
+import LiveSessionTracker from './LiveSessionTracker';
 
 export default function ClockDisplay() {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -77,6 +78,18 @@ export default function ClockDisplay() {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
+  const getCurrentWorkingHours = () => {
+    if (!sessionStartTime || attendanceStatus.currentStatus === 'CLOCKED_OUT') return 0;
+    
+    const elapsed = currentTime.getTime() - sessionStartTime.getTime();
+    const totalHours = elapsed / (1000 * 60 * 60);
+    
+    // Subtract lunch duration if applicable
+    const lunchDuration = currentRecord?.lunchDuration || 0;
+    return Math.max(0, totalHours - lunchDuration);
+  };
+
+
   const getStatusColor = () => {
     switch (attendanceStatus.currentStatus) {
       case 'WORKING':
@@ -150,6 +163,15 @@ export default function ClockDisplay() {
           </div>
         )}
       </div>
+
+      {/* Live Session Tracker for Extra Time Warning */}
+      {attendanceStatus.currentStatus === 'WORKING' && sessionStartTime && (
+        <LiveSessionTracker
+          isWorking={attendanceStatus.currentStatus === 'WORKING'}
+          clockInTime={sessionStartTime}
+          lunchDuration={currentRecord?.lunchDuration || 0}
+        />
+      )}
     </div>
   );
 }

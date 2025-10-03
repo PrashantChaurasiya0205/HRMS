@@ -25,6 +25,7 @@ export default function ActionButtons() {
       if (response.ok) {
         const data = await response.json();
         setAttendanceStatus(data);
+        
       }
     } catch (error) {
       console.error('Error fetching attendance status:', error);
@@ -87,6 +88,7 @@ export default function ActionButtons() {
       setIsLoading(false);
     }
   };
+
 
   const handleStartLunch = async () => {
     setIsLoading(true);
@@ -298,6 +300,7 @@ export default function ActionButtons() {
           {attendanceStatus.hasCheckedIn && attendanceStatus.currentStatus === 'LUNCH_BREAK' && 'On lunch break'}
         </div>
       </div>
+
     </div>
   );
 }
