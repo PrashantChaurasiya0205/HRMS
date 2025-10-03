@@ -155,7 +155,6 @@ export default function Statistics() {
         });
         
         if (response.ok) {
-          console.log('Extra time reason saved and continuing to work');
           setShowWarning(false);
           setExtraTimeReason('');
           // Refresh records to show updated data
@@ -189,7 +188,6 @@ export default function Statistics() {
         });
         
         if (response.ok) {
-          console.log('Extra time reason saved and clocking out');
           setShowWarning(false);
           setExtraTimeReason('');
           // Refresh records to show updated data

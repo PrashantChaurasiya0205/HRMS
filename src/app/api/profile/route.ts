@@ -13,7 +13,30 @@ export async function GET(request: NextRequest) {
     }
 
     await dbConnect();
-    const profile = await UserProfile.findOne({ userId: session.user.email });
+    let profile = await UserProfile.findOne({ email: session.user.email });
+
+    // If profile doesn't exist, create one automatically
+    if (!profile) {
+      const nameParts = session.user.name?.split(' ') || ['', ''];
+      // Set prashantworkoffice@gmail.com as manager, others as employee
+      const userRole = session.user.email === 'prashantworkoffice@gmail.com' ? 'manager' : 'employee';
+      
+      profile = new UserProfile({
+        userId: session.user.email,
+        email: session.user.email,
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' ') || '',
+        role: userRole,
+        leaveBalance: {
+          sick: 10,
+          vacation: 20,
+          personal: 5,
+          workFromHome: 12,
+          emergency: 3
+        }
+      });
+      await profile.save();
+    }
 
     return NextResponse.json(profile);
 
@@ -41,7 +64,7 @@ export async function POST(request: NextRequest) {
     await dbConnect();
     
     const profile = await UserProfile.findOneAndUpdate(
-      { userId: session.user.email },
+      { email: session.user.email },
       {
         userId: session.user.email,
         email: session.user.email,
@@ -53,7 +76,17 @@ export async function POST(request: NextRequest) {
         employeeId,
         hireDate,
         address,
-        emergencyContact
+        emergencyContact,
+        // Ensure leave balance is set with defaults if not exists
+        $setOnInsert: {
+          leaveBalance: {
+            sick: 10,
+            vacation: 20,
+            personal: 5,
+            workFromHome: 12,
+            emergency: 3
+          }
+        }
       },
       { upsert: true, new: true }
     );

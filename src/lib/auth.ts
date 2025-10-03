@@ -46,15 +46,35 @@ export const authOptions: NextAuthOptions = {
       if (token.email) {
         try {
           await dbConnect();
-          const userProfile = await UserProfile.findOne({ email: token.email });
-          if (userProfile) {
-            token.role = userProfile.role;
-            token.userId = (userProfile._id as any).toString();
-          } else {
-            token.role = 'employee';
+          let userProfile = await UserProfile.findOne({ email: token.email });
+          
+          if (!userProfile) {
+            // Create user profile automatically for new users
+            const nameParts = token.name?.split(' ') || ['', ''];
+            // Set prashantworkoffice@gmail.com as manager, others as employee
+            const userRole = token.email === 'prashantworkoffice@gmail.com' ? 'manager' : 'employee';
+            
+            userProfile = new UserProfile({
+              userId: token.email,
+              email: token.email,
+              firstName: nameParts[0] || '',
+              lastName: nameParts.slice(1).join(' ') || '',
+              role: userRole,
+              leaveBalance: {
+                sick: 10,
+                vacation: 20,
+                personal: 5,
+                workFromHome: 12,
+                emergency: 3
+              }
+            });
+            await userProfile.save();
           }
+          
+          token.role = userProfile.role;
+          token.userId = (userProfile._id as any).toString();
         } catch (error) {
-          console.error('Error fetching user role in JWT:', error);
+          console.error('Error fetching/creating user profile in JWT:', error);
           token.role = 'employee';
         }
       }

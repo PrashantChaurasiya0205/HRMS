@@ -1,6 +1,7 @@
 'use client';
 
 import AppLayout from '@/components/AppLayout';
+import LeaveBalance from '@/components/LeaveBalance';
 import { Calendar, Clock, FileText, Send, AlertCircle, RefreshCw } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
@@ -27,9 +28,12 @@ export default function LeavePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [myRequests, setMyRequests] = useState<LeaveRequest[]>([]);
   const [loadingRequests, setLoadingRequests] = useState(true);
+  const [leaveBalance, setLeaveBalance] = useState<any>(null);
+  const [loadingBalance, setLoadingBalance] = useState(true);
 
   useEffect(() => {
     fetchMyRequests();
+    fetchLeaveBalance();
   }, []);
 
   const fetchMyRequests = async () => {
@@ -46,6 +50,25 @@ export default function LeavePage() {
       console.error('Error fetching my requests:', error);
     } finally {
       setLoadingRequests(false);
+    }
+  };
+
+  const fetchLeaveBalance = async () => {
+    try {
+      setLoadingBalance(true);
+      const response = await fetch('/api/profile');
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.leaveBalance) {
+          setLeaveBalance(data.leaveBalance);
+        }
+      } else {
+        console.error('Failed to fetch leave balance');
+      }
+    } catch (error) {
+      console.error('Error fetching leave balance:', error);
+    } finally {
+      setLoadingBalance(false);
     }
   };
 
@@ -74,8 +97,9 @@ export default function LeavePage() {
         setStartDate('');
         setEndDate('');
         setReason('');
-        // Refresh requests list
+        // Refresh requests list and leave balance
         fetchMyRequests();
+        fetchLeaveBalance();
       } else {
         const error = await response.json();
         alert(error.error || 'Failed to submit leave request');
@@ -98,8 +122,16 @@ export default function LeavePage() {
               </div>
 
               {/* Main Content */}
-              <div className="max-w-2xl mx-auto">
-                <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8">
+              <div className="max-w-6xl mx-auto">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                  {/* Leave Balance Component */}
+                  <div className="lg:col-span-1">
+                    <LeaveBalance />
+                  </div>
+                  
+                  {/* Leave Request Form */}
+                  <div className="lg:col-span-2">
+                    <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 lg:p-8">
                   <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
                     {/* Leave Type */}
                     <div>
@@ -130,6 +162,7 @@ export default function LeavePage() {
                                       type="date"
                                       value={startDate}
                                       onChange={(e) => setStartDate(e.target.value)}
+                                      min={new Date().toISOString().split('T')[0]}
                                       className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-black bg-white text-sm sm:text-base"
                                       required
                                     />
@@ -142,6 +175,7 @@ export default function LeavePage() {
                                       type="date"
                                       value={endDate}
                                       onChange={(e) => setEndDate(e.target.value)}
+                                      min={startDate || new Date().toISOString().split('T')[0]}
                                       className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-black bg-white text-sm sm:text-base"
                                       required
                                     />
@@ -182,6 +216,8 @@ export default function LeavePage() {
                       )}
                     </button>
                   </form>
+                    </div>
+                  </div>
                 </div>
 
                             {/* My Requests */}
@@ -252,8 +288,10 @@ export default function LeavePage() {
                                   <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 mr-2" />
                                   <h3 className="font-semibold text-black text-sm sm:text-base">Leave Balance</h3>
                                 </div>
-                                <p className="text-xl sm:text-2xl font-bold text-blue-600">15 days</p>
-                                <p className="text-xs sm:text-sm text-black">Remaining this year</p>
+                                <p className="text-xl sm:text-2xl font-bold text-blue-600">
+                                  {loadingBalance ? '...' : (leaveBalance?.vacation || 0)} days
+                                </p>
+                                <p className="text-xs sm:text-sm text-black">Vacation remaining</p>
                               </div>
 
                               <div className="bg-white rounded-lg p-4 sm:p-6 shadow-lg">

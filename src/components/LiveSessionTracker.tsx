@@ -111,7 +111,6 @@ export default function LiveSessionTracker({
           });
           
           if (response.ok) {
-            console.log('Extra time reason and hours calculated and saved');
             setShowWarning(false);
             localStorage.setItem('extraTimeWarningShown', 'true');
             window.location.reload();
@@ -149,7 +148,6 @@ export default function LiveSessionTracker({
           });
           
           if (response.ok) {
-            console.log('Extra time reason saved and clocking out');
             setShowWarning(false);
             // Store in localStorage that warning has been shown for this session
             localStorage.setItem('extraTimeWarningShown', 'true');
