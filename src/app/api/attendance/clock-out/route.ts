@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import Attendance from '@/models/Attendance';
+import SystemConfig from '@/models/SystemConfig';
 import dbConnect from '@/lib/dbConnect';
 
 export async function POST(request: NextRequest) {
@@ -39,8 +40,11 @@ export async function POST(request: NextRequest) {
 
     const finalWorkingHours = totalWorkingHours - lunchDuration;
     
+    // Get working hours from system configuration
+    let systemConfig = await SystemConfig.findOne().sort({ updatedAt: -1 });
+    const maxWorkingHours = systemConfig?.workingHours?.dailyHours || 8;
+    
     // Calculate regular and extra hours
-    const maxWorkingHours = 8;
     const regularHours = Math.min(finalWorkingHours, maxWorkingHours);
     const extraHours = Math.max(0, finalWorkingHours - maxWorkingHours);
 

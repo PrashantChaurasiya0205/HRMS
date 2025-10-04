@@ -50,15 +50,24 @@ export default function TodaysProgressOnly() {
       setCurrentTime(new Date());
     }, 1000);
 
-    // Refresh status every 30 seconds
+    // Refresh status more frequently when working
     const refreshTimer = setInterval(() => {
       fetchAttendanceStatus();
       fetchTodayRecord();
-    }, 30000);
+    }, 5000); // Refresh every 5 seconds
+
+    // Listen for attendance changes
+    const handleAttendanceChange = () => {
+      fetchAttendanceStatus();
+      fetchTodayRecord();
+    };
+
+    window.addEventListener('attendanceChanged', handleAttendanceChange);
 
     return () => {
       clearInterval(timer);
       clearInterval(refreshTimer);
+      window.removeEventListener('attendanceChanged', handleAttendanceChange);
     };
   }, []);
 
@@ -94,7 +103,7 @@ export default function TodaysProgressOnly() {
 
   const fetchWorkingHours = async () => {
     try {
-      const response = await fetch('/api/admin');
+      const response = await fetch('/api/working-hours');
       if (response.ok) {
         const data = await response.json();
         setMaxWorkingHours(data.workingHours?.dailyHours || 8);

@@ -1,7 +1,7 @@
 'use client';
 
 import AppLayout from '@/components/AppLayout';
-import { Calendar, Clock, User, CheckCircle, XCircle, MessageSquare, Filter, Shield } from 'lucide-react';
+import { Calendar, Clock, User, CheckCircle, XCircle, MessageSquare, Filter, Shield, Trash2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -149,6 +149,36 @@ export default function ManagerPage() {
     }
   };
 
+  const handleDelete = async (requestId: string) => {
+    if (!confirm('Are you sure you want to delete this leave request? This action cannot be undone.')) {
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      const response = await fetch('/api/leave/requests', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ requestId }),
+      });
+
+      if (response.ok) {
+        alert('Leave request deleted successfully!');
+        fetchRequests();
+      } else {
+        const error = await response.json();
+        alert(error.error || 'Failed to delete leave request');
+      }
+    } catch (error) {
+      console.error('Error deleting leave request:', error);
+      alert('Failed to delete leave request');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const filteredRequests = requests.filter(request => {
     if (filter === 'all') return true;
     return request.status === filter;
@@ -263,14 +293,23 @@ export default function ManagerPage() {
                           </div>
                           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                             {getStatusBadge(request.status)}
-                            {request.status === 'pending' && (
+                            <div className="flex gap-2">
+                              {request.status === 'pending' && (
+                                <button
+                                  onClick={() => setSelectedRequest(request)}
+                                  className="px-3 py-1 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 transition-colors"
+                                >
+                                  Review
+                                </button>
+                              )}
                               <button
-                                onClick={() => setSelectedRequest(request)}
-                                className="px-3 py-1 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 transition-colors w-full sm:w-auto"
+                                onClick={() => handleDelete(request._id)}
+                                disabled={isProcessing}
+                                className="p-2 bg-transparent text-black rounded-lg hover:bg-red-600 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                               >
-                                Review
+                                <Trash2 className="w-4 h-4" />
                               </button>
-                            )}
+                            </div>
                           </div>
                         </div>
                         
