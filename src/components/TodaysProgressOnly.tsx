@@ -50,11 +50,14 @@ export default function TodaysProgressOnly() {
       setCurrentTime(new Date());
     }, 1000);
 
-    // Refresh status more frequently when working
+    // Refresh status only when actively working
     const refreshTimer = setInterval(() => {
-      fetchAttendanceStatus();
-      fetchTodayRecord();
-    }, 5000); // Refresh every 5 seconds
+      // Only refresh if user is currently working (has checked in but not out)
+      if (attendanceStatus.hasCheckedIn && !attendanceStatus.hasCheckedOut) {
+        fetchAttendanceStatus();
+        fetchTodayRecord();
+      }
+    }, 10000); // Refresh every 10 seconds, but only when working
 
     // Listen for attendance changes
     const handleAttendanceChange = () => {
