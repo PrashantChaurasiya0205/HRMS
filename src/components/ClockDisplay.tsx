@@ -158,7 +158,7 @@ export default function ClockDisplay() {
           <div className="mt-3 sm:mt-4 bg-green-50 rounded-lg p-2 xs:p-3 sm:p-4 lg:p-5">
             <div className="text-xs xs:text-sm sm:text-base text-green-700 mb-1">Working Hours Today</div>
             <div className="text-base xs:text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-green-800">
-              {currentRecord.totalWorkingHours.toFixed(2)} hours
+              {Math.floor(currentRecord.totalWorkingHours)}h {Math.floor((currentRecord.totalWorkingHours % 1) * 60)}m
             </div>
           </div>
         )}
