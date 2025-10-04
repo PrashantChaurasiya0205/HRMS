@@ -74,6 +74,14 @@ export default function LeavePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check if selected leave type has balance
+    const selectedLeaveType = leaveType === 'work-from-home' ? 'workFromHome' : leaveType;
+    if (leaveBalance && leaveBalance[selectedLeaveType] === 0) {
+      alert('You cannot request this leave type as you have no balance remaining');
+      return;
+    }
+    
     setIsSubmitting(true);
     
     try {
@@ -144,11 +152,21 @@ export default function LeavePage() {
                                     className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-black bg-white text-sm sm:text-base"
                                     required
                                   >
-                        <option value="sick">Sick Leave</option>
-                        <option value="vacation">Vacation Leave</option>
-                        <option value="personal">Personal Leave</option>
-                        <option value="work-from-home">Work from Home</option>
-                        <option value="emergency">Emergency Leave</option>
+                        <option value="sick" disabled={leaveBalance?.sick === 0}>
+                          Sick Leave {leaveBalance?.sick === 0 ? '(No Balance)' : ''}
+                        </option>
+                        <option value="vacation" disabled={leaveBalance?.vacation === 0}>
+                          Vacation Leave {leaveBalance?.vacation === 0 ? '(No Balance)' : ''}
+                        </option>
+                        <option value="personal" disabled={leaveBalance?.personal === 0}>
+                          Personal Leave {leaveBalance?.personal === 0 ? '(No Balance)' : ''}
+                        </option>
+                        <option value="work-from-home" disabled={leaveBalance?.workFromHome === 0}>
+                          Work from Home {leaveBalance?.workFromHome === 0 ? '(No Balance)' : ''}
+                        </option>
+                        <option value="emergency" disabled={leaveBalance?.emergency === 0}>
+                          Emergency Leave {leaveBalance?.emergency === 0 ? '(No Balance)' : ''}
+                        </option>
                       </select>
                     </div>
 

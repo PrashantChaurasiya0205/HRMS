@@ -6,6 +6,7 @@ import { AlertTriangle } from 'lucide-react';
 interface ExtraTimeWarningProps {
   isVisible: boolean;
   currentHours: number;
+  maxWorkingHours: number;
   onContinue: (reason: string) => void;
   onClockOut: (reason: string) => void;
   onClose: () => void;
@@ -14,6 +15,7 @@ interface ExtraTimeWarningProps {
 export default function ExtraTimeWarning({ 
   isVisible, 
   currentHours, 
+  maxWorkingHours,
   onContinue, 
   onClockOut, 
   onClose 
@@ -56,7 +58,7 @@ export default function ExtraTimeWarning({
         
         <div className="mb-6">
           <p className="text-base sm:text-lg text-black font-medium mb-2">
-            You've worked {currentHours.toFixed(1)} hours (exceeds 8 hours)
+            You've worked {currentHours.toFixed(1)} hours (exceeds {maxWorkingHours} hours)
           </p>
           <p className="text-sm sm:text-base text-black">
             Would you like to continue working and track extra hours?
