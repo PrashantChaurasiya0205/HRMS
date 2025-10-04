@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
@@ -10,13 +10,33 @@ export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const { data: session } = useSession();
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const isActive = (path: string) => pathname === path;
-  const isManager = session?.user?.role === 'manager';
+  const isManager = session?.user?.role === 'manager' || session?.user?.role === 'CEO' || session?.user?.role === 'Co-founder';
 
   const handleLogout = () => {
+    // Clear welcome message flag so it shows on next login
+    localStorage.removeItem('welcomeShown');
     signOut({ callbackUrl: '/login' });
   };
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
 
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50">
@@ -121,7 +141,7 @@ export default function Navigation() {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="lg:hidden py-4 sm:py-6 md:py-8 border-t border-gray-200">
+          <div ref={menuRef} className="lg:hidden py-4 sm:py-6 md:py-8 border-t border-gray-200">
             <div className="flex flex-col space-y-2 sm:space-y-3 md:space-y-4">
               <Link
                 href="/dashboard"

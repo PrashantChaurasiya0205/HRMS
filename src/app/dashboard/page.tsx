@@ -4,10 +4,12 @@ import AppLayout from '@/components/AppLayout';
 import ClockDisplay from '@/components/ClockDisplay';
 import ActionButtons from '@/components/ActionButtons';
 import TodaysProgressOnly from '@/components/TodaysProgressOnly';
+import WelcomeMessage from '@/components/WelcomeMessage';
 
 export default function DashboardPage() {
   return (
     <AppLayout>
+      <WelcomeMessage />
       <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
         {/* Header */}
         <div className="text-center mb-6 sm:mb-8" id="dashboard">

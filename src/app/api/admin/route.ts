@@ -13,8 +13,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (session.user.role !== 'manager') {
-      return NextResponse.json({ error: 'Access denied. Manager role required.' }, { status: 403 });
+    if (!session.user.role || !['manager', 'CEO', 'Co-founder'].includes(session.user.role)) {
+      return NextResponse.json({ error: 'Access denied. Manager/CEO/Co-founder role required.' }, { status: 403 });
     }
 
     await dbConnect();
@@ -54,8 +54,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (session.user.role !== 'manager') {
-      return NextResponse.json({ error: 'Access denied. Manager role required.' }, { status: 403 });
+    if (!session.user.role || !['manager', 'CEO', 'Co-founder'].includes(session.user.role)) {
+      return NextResponse.json({ error: 'Access denied. Manager/CEO/Co-founder role required.' }, { status: 403 });
     }
 
     const { action, ...data } = await request.json();

@@ -13,9 +13,9 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user is manager
-    if (session.user.role !== 'manager') {
-      return NextResponse.json({ error: 'Access denied. Manager role required.' }, { status: 403 });
+    // Check if user is manager, CEO, or Co-founder
+    if (!session.user.role || !['manager', 'CEO', 'Co-founder'].includes(session.user.role)) {
+      return NextResponse.json({ error: 'Access denied. Manager/CEO/Co-founder role required.' }, { status: 403 });
     }
 
     const body = await request.json();

@@ -3,6 +3,7 @@
 import AppLayout from '@/components/AppLayout';
 import { useSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { User, Clock, Calendar, Save, RefreshCw, AlertCircle, Users, Settings2 } from 'lucide-react';
 
 interface Employee {
@@ -22,6 +23,7 @@ interface Employee {
 
 export default function ManagerSettingsPage() {
   const { data: session } = useSession();
+  const router = useRouter();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [dailyHours, setDailyHours] = useState(8);
   const [loading, setLoading] = useState(true);
@@ -43,10 +45,16 @@ export default function ManagerSettingsPage() {
   });
 
   useEffect(() => {
-    if (session?.user?.role === 'manager') {
+    // Fallback check for unauthorized access
+    if (session && !['manager', 'CEO', 'Co-founder'].includes(session.user?.role || '')) {
+      router.push(`/access-denied?redirect=${window.location.pathname}`);
+      return;
+    }
+    
+    if (session && ['manager', 'CEO', 'Co-founder'].includes(session.user?.role || '')) {
       fetchEmployees();
     }
-  }, [session]);
+  }, [session, router]);
 
   const fetchEmployees = async () => {
     try {
@@ -132,19 +140,6 @@ export default function ManagerSettingsPage() {
     }
   };
 
-  if (!session || session.user?.role !== 'manager') {
-    return (
-      <AppLayout>
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <div className="text-center">
-            <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">Access Denied</h1>
-            <p className="text-gray-600">Manager access required to view this page.</p>
-          </div>
-        </div>
-      </AppLayout>
-    );
-  }
 
   if (loading) {
     return (
