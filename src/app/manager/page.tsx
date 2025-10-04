@@ -40,15 +40,19 @@ export default function ManagerPage() {
       return;
     }
     
-    if (session && session.user?.role !== 'manager') {
-      router.push('/dashboard');
+    // Fallback check for unauthorized access
+    if (status === 'authenticated' && session && !['manager', 'CEO', 'Co-founder'].includes(session.user?.role || '')) {
+      router.push(`/access-denied?redirect=${window.location.pathname}`);
       return;
     }
   }, [session, status, router]);
 
   useEffect(() => {
-    fetchRequests();
-  }, []);
+    // Only fetch requests if user has proper role
+    if (session && ['manager', 'CEO', 'Co-founder'].includes(session.user?.role || '')) {
+      fetchRequests();
+    }
+  }, [session]);
 
   const fetchRequests = async () => {
     try {
@@ -66,6 +70,20 @@ export default function ManagerPage() {
       setLoading(false);
     }
   };
+
+  // Show loading while checking authentication
+  if (status === 'loading') {
+    return (
+      <AppLayout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading...</p>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
 
   const handleApprove = async (requestId: string) => {
     setIsProcessing(true);
@@ -199,25 +217,6 @@ export default function ManagerPage() {
     );
   }
 
-  if (session && session.user?.role !== 'manager') {
-    return (
-      <AppLayout>
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center py-12">
-            <Shield className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">Access Denied</h1>
-            <p className="text-gray-600 mb-6">You don't have permission to access this page.</p>
-            <button
-              onClick={() => router.push('/dashboard')}
-              className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-            >
-              Go to Dashboard
-            </button>
-          </div>
-        </div>
-      </AppLayout>
-    );
-  }
 
   return (
     <AppLayout>

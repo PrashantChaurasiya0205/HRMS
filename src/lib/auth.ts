@@ -51,8 +51,13 @@ export const authOptions: NextAuthOptions = {
           if (!userProfile) {
             // Create user profile automatically for new users
             const nameParts = token.name?.split(' ') || ['', ''];
-            // Set prashantworkoffice@gmail.com as manager, others as employee
-            const userRole = token.email === 'prashantworkoffice@gmail.com' ? 'manager' : 'employee';
+            // Set specific emails as manager/CEO/Co-founder, others as employee
+            let userRole = 'employee';
+            if (token.email === 'prashantworkoffice@gmail.com') {
+              userRole = 'manager';
+            } else if (token.email === 'ceo@company.com' || token.email === 'cofounder@company.com') {
+              userRole = token.email === 'ceo@company.com' ? 'CEO' : 'Co-founder';
+            }
             
             userProfile = new UserProfile({
               userId: token.email,
