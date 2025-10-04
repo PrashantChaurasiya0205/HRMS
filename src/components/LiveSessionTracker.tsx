@@ -18,14 +18,28 @@ export default function LiveSessionTracker({
   const [showWarning, setShowWarning] = useState(false);
   const [hasShownWarning, setHasShownWarning] = useState(false);
   const [currentWorkingHours, setCurrentWorkingHours] = useState(0);
+  const [maxWorkingHours, setMaxWorkingHours] = useState(8);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
 
+    fetchWorkingHours();
     return () => clearInterval(timer);
   }, []);
+
+  const fetchWorkingHours = async () => {
+    try {
+      const response = await fetch('/api/system/working-hours');
+      if (response.ok) {
+        const data = await response.json();
+        setMaxWorkingHours(data.dailyHours || 8);
+      }
+    } catch (error) {
+      console.error('Error fetching working hours:', error);
+    }
+  };
 
   useEffect(() => {
     if (isWorking && clockInTime) {
@@ -46,8 +60,8 @@ export default function LiveSessionTracker({
         setHasShownWarning(false);
       }
 
-      // Show warning when 8 hours are reached (only once per session)
-      if (workingHours >= 8 && !hasShownWarning && !warningShownToday) {
+      // Show warning when max hours are reached (only once per session)
+      if (workingHours >= maxWorkingHours && !hasShownWarning && !warningShownToday) {
         setShowWarning(true);
         setHasShownWarning(true);
         localStorage.setItem('lastWarningDate', today);
@@ -90,9 +104,9 @@ export default function LiveSessionTracker({
           const lunchDuration = todayRecord.lunchDuration || 0;
           const finalWorkingHours = Math.max(0, totalHours - lunchDuration);
           
-          const maxWorkingHours = 8;
-          const regularHours = Math.min(finalWorkingHours, maxWorkingHours);
-          const extraHours = Math.max(0, finalWorkingHours - maxWorkingHours);
+          const maxHours = maxWorkingHours;
+          const regularHours = Math.min(finalWorkingHours, maxHours);
+          const extraHours = Math.max(0, finalWorkingHours - maxHours);
 
           const response = await fetch('/api/attendance/update-extra-time', {
             method: 'POST',
@@ -176,6 +190,7 @@ export default function LiveSessionTracker({
     <ExtraTimeWarning
       isVisible={showWarning}
       currentHours={currentWorkingHours}
+      maxWorkingHours={maxWorkingHours}
       onContinue={handleContinue}
       onClockOut={handleClockOut}
       onClose={handleClose}

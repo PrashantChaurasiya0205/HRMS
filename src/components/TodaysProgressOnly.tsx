@@ -31,13 +31,15 @@ export default function TodaysProgressOnly() {
   const [todayRecord, setTodayRecord] = useState<AttendanceRecord | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [loading, setLoading] = useState(true);
+  const [maxWorkingHours, setMaxWorkingHours] = useState(8);
 
   useEffect(() => {
     // Initial data fetch
     const initializeData = async () => {
       await Promise.all([
         fetchAttendanceStatus(),
-        fetchTodayRecord()
+        fetchTodayRecord(),
+        fetchWorkingHours()
       ]);
     };
     
@@ -90,7 +92,19 @@ export default function TodaysProgressOnly() {
     }
   };
 
-  const getProgressPercentage = (current: number, target: number = 8) => {
+  const fetchWorkingHours = async () => {
+    try {
+      const response = await fetch('/api/system/working-hours');
+      if (response.ok) {
+        const data = await response.json();
+        setMaxWorkingHours(data.dailyHours || 8);
+      }
+    } catch (error) {
+      console.error('Error fetching working hours:', error);
+    }
+  };
+
+  const getProgressPercentage = (current: number, target: number = maxWorkingHours) => {
     return Math.min((current / target) * 100, 100);
   };
 
@@ -131,7 +145,7 @@ export default function TodaysProgressOnly() {
     // Calculate segments for different time periods
     const segments = [];
     const totalMinutes = elapsed / (1000 * 60);
-    const targetMinutes = 8 * 60; // 8 hours in minutes
+    const targetMinutes = maxWorkingHours * 60; // max hours in minutes
     
     if (todayRecord.lunchStart && todayRecord.lunchEnd) {
       const lunchStart = new Date(todayRecord.lunchStart);
@@ -274,7 +288,7 @@ export default function TodaysProgressOnly() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
           <span className="text-sm font-medium text-gray-700">Today's Progress</span>
           <span className="text-sm text-gray-600">
-            {Math.floor(sessionTime.hours)}h {Math.floor((sessionTime.hours % 1) * 60)}m / 8h
+            {Math.floor(sessionTime.hours)}h {Math.floor((sessionTime.hours % 1) * 60)}m / {maxWorkingHours}h
           </span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2 relative">

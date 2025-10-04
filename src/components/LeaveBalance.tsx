@@ -68,15 +68,27 @@ export default function LeaveBalance() {
   };
 
   const getBalanceColor = (balance: number, type: string) => {
-    if (balance <= 0) return 'text-red-600 bg-red-50';
-    if (balance <= 2) return 'text-orange-600 bg-orange-50';
-    if (balance <= 5) return 'text-yellow-600 bg-yellow-50';
-    return 'text-green-600 bg-green-50';
+    if (balance === 0) return 'text-yellow-800 bg-yellow-100';
+    
+    // Different colors for each leave type when they have balance
+    switch (type) {
+      case 'sick':
+        return 'text-red-800 bg-red-100';
+      case 'vacation':
+        return 'text-blue-800 bg-blue-100';
+      case 'personal':
+        return 'text-yellow-800 bg-yellow-100';
+      case 'workFromHome':
+        return 'text-green-800 bg-green-100';
+      case 'emergency':
+        return 'text-purple-800 bg-purple-100';
+      default:
+        return 'text-green-800 bg-green-100';
+    }
   };
 
   const getBalanceIcon = (balance: number) => {
-    if (balance <= 0) return <AlertCircle className="w-4 h-4" />;
-    if (balance <= 2) return <AlertCircle className="w-4 h-4" />;
+    if (balance === 0) return <AlertCircle className="w-4 h-4" />;
     return <CheckCircle className="w-4 h-4" />;
   };
 

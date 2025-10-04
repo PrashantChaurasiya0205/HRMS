@@ -21,12 +21,25 @@ export default function Statistics() {
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [showWarning, setShowWarning] = useState(false);
-  const [maxWorkingHours] = useState(8); // Set maximum working hours
+  const [maxWorkingHours, setMaxWorkingHours] = useState(8); // Set maximum working hours
   const [extraTimeReason, setExtraTimeReason] = useState('');
 
   useEffect(() => {
     fetchRecords();
+    fetchWorkingHours();
   }, []);
+
+  const fetchWorkingHours = async () => {
+    try {
+      const response = await fetch('/api/system/working-hours');
+      if (response.ok) {
+        const data = await response.json();
+        setMaxWorkingHours(data.dailyHours || 8);
+      }
+    } catch (error) {
+      console.error('Error fetching working hours:', error);
+    }
+  };
 
   const fetchRecords = async () => {
     try {
