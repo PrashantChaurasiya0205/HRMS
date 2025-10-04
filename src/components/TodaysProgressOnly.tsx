@@ -94,10 +94,10 @@ export default function TodaysProgressOnly() {
 
   const fetchWorkingHours = async () => {
     try {
-      const response = await fetch('/api/system/working-hours');
+      const response = await fetch('/api/admin');
       if (response.ok) {
         const data = await response.json();
-        setMaxWorkingHours(data.dailyHours || 8);
+        setMaxWorkingHours(data.workingHours?.dailyHours || 8);
       }
     } catch (error) {
       console.error('Error fetching working hours:', error);

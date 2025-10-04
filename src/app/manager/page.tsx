@@ -182,19 +182,6 @@ export default function ManagerPage() {
     return typeConfig[type as keyof typeof typeConfig] || 'text-black bg-gray-50 border-gray-200';
   };
 
-  // Show loading state while checking authentication
-  if (status === 'loading') {
-    return (
-      <AppLayout>
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mr-3"></div>
-            <span className="text-gray-600">Loading...</span>
-          </div>
-        </div>
-      </AppLayout>
-    );
-  }
 
   // Show access denied if not authenticated or not manager
   if (status === 'unauthenticated') {
