@@ -5,6 +5,104 @@ import { format } from 'date-fns';
 import { Clock, Timer } from 'lucide-react';
 import LiveSessionTracker from './LiveSessionTracker';
 
+// 3D Clock Component
+const AnalogClock = ({ time }: { time: Date }) => {
+  const hours = time.getHours() % 12;
+  const minutes = time.getMinutes();
+  const seconds = time.getSeconds();
+  
+  const hourAngle = (hours * 30) + (minutes * 0.5);
+  const minuteAngle = minutes * 6;
+  const secondAngle = seconds * 6;
+
+  return (
+    <div className="relative w-32 h-32 xs:w-36 xs:h-36 sm:w-40 sm:h-40 md:w-44 md:h-44 lg:w-48 lg:h-48 mx-auto">
+      {/* Clock Face */}
+      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-100 to-gray-300 shadow-2xl border-2 xs:border-3 sm:border-4 border-gray-400">
+        {/* Hour Markers */}
+        {[...Array(12)].map((_, i) => {
+          const angle = i * 30;
+          const x = 50 + 40 * Math.cos((angle - 90) * Math.PI / 180);
+          const y = 50 + 40 * Math.sin((angle - 90) * Math.PI / 180);
+          return (
+            <div
+              key={i}
+              className="absolute w-1 h-1 bg-gray-700 rounded-full"
+              style={{
+                left: `${x}%`,
+                top: `${y}%`,
+                transform: 'translate(-50%, -50%)'
+              }}
+            />
+          );
+        })}
+        
+        {/* Hour Numbers */}
+        {[12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((num, i) => {
+          const angle = i * 30;
+          const x = 50 + 35 * Math.cos((angle - 90) * Math.PI / 180);
+          const y = 50 + 35 * Math.sin((angle - 90) * Math.PI / 180);
+          return (
+            <div
+              key={num}
+              className="absolute text-xs xs:text-sm font-bold text-gray-800"
+              style={{
+                left: `${x}%`,
+                top: `${y}%`,
+                transform: 'translate(-50%, -50%)'
+              }}
+            >
+              {num}
+            </div>
+          );
+        })}
+        
+        {/* Hour Hand */}
+        <div
+          className="absolute w-1 bg-gray-800 origin-bottom"
+          style={{
+            height: '30%',
+            left: '50%',
+            top: '20%',
+            transform: `translateX(-50%) rotate(${hourAngle}deg)`,
+            transformOrigin: 'bottom center',
+            zIndex: 3
+          }}
+        />
+        
+        {/* Minute Hand */}
+        <div
+          className="absolute w-0.5 bg-gray-700 origin-bottom"
+          style={{
+            height: '40%',
+            left: '50%',
+            top: '10%',
+            transform: `translateX(-50%) rotate(${minuteAngle}deg)`,
+            transformOrigin: 'bottom center',
+            zIndex: 2
+          }}
+        />
+        
+        {/* Second Hand */}
+        <div
+          className="absolute w-0.5 bg-red-500 origin-bottom"
+          style={{
+            height: '45%',
+            left: '50%',
+            top: '5%',
+            transform: `translateX(-50%) rotate(${secondAngle}deg)`,
+            transformOrigin: 'bottom center',
+            zIndex: 1
+          }}
+        />
+        
+        {/* Center Dot */}
+        <div className="absolute w-2 h-2 xs:w-2.5 xs:h-2.5 sm:w-3 sm:h-3 bg-gray-800 rounded-full left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10" />
+      </div>
+    </div>
+  );
+};
+
 export default function ClockDisplay() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null);
@@ -119,13 +217,17 @@ export default function ClockDisplay() {
   return (
     <div className="bg-white rounded-xl shadow-lg p-3 xs:p-4 sm:p-6 mb-3 xs:mb-4 sm:mb-6">
       <div className="text-center">
-        {/* Current Time */}
+        {/* 3D Analog Clock */}
+        <div className="mb-4 sm:mb-6">
+          <AnalogClock time={currentTime} />
+        </div>
+
+        {/* Digital Time Display */}
         <div className="mb-3 sm:mb-4">
           <div className="flex items-center justify-center mb-1 sm:mb-2">
-            <Clock className="w-3 h-3 xs:w-4 xs:h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-600 mr-1 xs:mr-1.5 sm:mr-2" />
-            <span className="text-base xs:text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-gray-800">{format(currentTime, 'HH:mm:ss')}</span>
+            <span className="text-sm xs:text-base sm:text-lg md:text-xl font-bold text-gray-800">{format(currentTime, 'HH:mm:ss')}</span>
           </div>
-          <p className="text-gray-600 text-xs xs:text-sm sm:text-base lg:text-lg px-2">{format(currentTime, 'EEEE, MMMM do, yyyy')}</p>
+          <p className="text-gray-600 text-xs xs:text-sm sm:text-base px-2">{format(currentTime, 'EEEE, MMMM do, yyyy')}</p>
         </div>
 
         {/* Status */}

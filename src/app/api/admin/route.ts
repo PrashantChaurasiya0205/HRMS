@@ -14,7 +14,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (!session.user.role || !['manager', 'CEO', 'Co-founder'].includes(session.user.role)) {
+    const userRole = (session.user.role || '').toLowerCase();
+    const allowedRoles = ['manager', 'ceo', 'co-founder'];
+    
+    if (!userRole || !allowedRoles.includes(userRole)) {
       return NextResponse.json({ error: 'Access denied. Manager/CEO/Co-founder role required.' }, { status: 403 });
     }
 
@@ -59,7 +62,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (!session.user.role || !['manager', 'CEO', 'Co-founder'].includes(session.user.role)) {
+    const userRole = (session.user.role || '').toLowerCase();
+    const allowedRoles = ['manager', 'ceo', 'co-founder'];
+    
+    if (!userRole || !allowedRoles.includes(userRole)) {
       return NextResponse.json({ error: 'Access denied. Manager/CEO/Co-founder role required.' }, { status: 403 });
     }
 
@@ -200,6 +206,37 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ 
           message: 'Leave balances fixed successfully',
           updatedCount 
+        });
+      }
+
+      case 'updateUserRole': {
+        const { employeeId, role } = data;
+
+        if (!employeeId || !role) {
+          return NextResponse.json({ error: 'Employee ID and role are required' }, { status: 400 });
+        }
+
+        const validRoles = ['employee', 'intern', 'hr', 'manager', 'co-founder', 'ceo'];
+        if (!validRoles.includes(role)) {
+          return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
+        }
+
+        const user = await UserProfile.findById(employeeId);
+        if (!user) {
+          return NextResponse.json({ error: 'Employee not found' }, { status: 404 });
+        }
+
+        user.role = role;
+        await user.save();
+
+        return NextResponse.json({ 
+          message: 'User role updated successfully',
+          user: {
+            id: user._id,
+            email: user.email,
+            name: `${user.firstName} ${user.lastName}`,
+            role: user.role
+          }
         });
       }
 

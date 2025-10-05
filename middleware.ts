@@ -8,9 +8,22 @@ export default withAuth(
 
     // Check if user is trying to access manager/admin pages
     if (pathname.startsWith('/manager') || pathname.startsWith('/api/admin')) {
-      // Allow access only for manager, CEO, and Co-founder roles
-      if (!token?.role || !['manager', 'CEO', 'Co-founder'].includes(token.role as string)) {
+      // Allow access only for manager, CEO, and Co-founder roles (case-insensitive)
+      const userRole = (token?.role || '').toLowerCase();
+      const allowedRoles = ['manager', 'ceo', 'co-founder'];
+      
+      if (!userRole || !allowedRoles.includes(userRole)) {
         // Redirect to access denied page with original URL
+        const url = new URL('/access-denied', req.url);
+        url.searchParams.set('redirect', pathname);
+        return NextResponse.redirect(url);
+      }
+    }
+
+    // Check if user is trying to access CEO page
+    if (pathname.startsWith('/ceo')) {
+      const userRole = (token?.role || '').toLowerCase();
+      if (userRole !== 'ceo') {
         const url = new URL('/access-denied', req.url);
         url.searchParams.set('redirect', pathname);
         return NextResponse.redirect(url);

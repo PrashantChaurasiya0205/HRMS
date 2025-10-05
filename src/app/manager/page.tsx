@@ -41,16 +41,26 @@ export default function ManagerPage() {
     }
     
     // Fallback check for unauthorized access
-    if (status === 'authenticated' && session && !['manager', 'CEO', 'Co-founder'].includes(session.user?.role || '')) {
-      router.push(`/access-denied?redirect=${window.location.pathname}`);
-      return;
+    if (status === 'authenticated' && session) {
+      const userRole = (session.user?.role || '').toLowerCase();
+      const allowedRoles = ['manager', 'ceo', 'co-founder'];
+      
+      if (!allowedRoles.includes(userRole)) {
+        router.push(`/access-denied?redirect=${window.location.pathname}`);
+        return;
+      }
     }
   }, [session, status, router]);
 
   useEffect(() => {
     // Only fetch requests if user has proper role
-    if (session && ['manager', 'CEO', 'Co-founder'].includes(session.user?.role || '')) {
-      fetchRequests();
+    if (session) {
+      const userRole = (session.user?.role || '').toLowerCase();
+      const allowedRoles = ['manager', 'ceo', 'co-founder'];
+      
+      if (allowedRoles.includes(userRole)) {
+        fetchRequests();
+      }
     }
   }, [session]);
 
