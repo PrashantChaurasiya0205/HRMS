@@ -6,14 +6,10 @@ export default withAuth(
     const token = req.nextauth.token;
     const { pathname } = req.nextUrl;
 
-    console.log('Middleware triggered for:', pathname, 'Role:', token?.role);
-
     // Check if user is trying to access manager/admin pages
     if (pathname.startsWith('/manager') || pathname.startsWith('/api/admin')) {
-      console.log('Checking manager access for:', pathname);
       // Allow access only for manager, CEO, and Co-founder roles
       if (!token?.role || !['manager', 'CEO', 'Co-founder'].includes(token.role as string)) {
-        console.log('Access denied, redirecting to access-denied page');
         // Redirect to access denied page with original URL
         const url = new URL('/access-denied', req.url);
         url.searchParams.set('redirect', pathname);
@@ -26,18 +22,23 @@ export default withAuth(
   {
     callbacks: {
       authorized: ({ token, req }) => {
-        // Allow access to public pages without authentication
         const { pathname } = req.nextUrl;
         
         // Public pages that don't require authentication
-        const publicPages = ['/login', '/api/auth/signin', '/', '/access-denied'];
+        const publicPages = ['/login', '/api/auth/signin', '/access-denied'];
         
         if (publicPages.includes(pathname)) {
           return true;
         }
         
-        // All other pages require authentication
-        return !!token;
+        // If no token, redirect to login
+        if (!token) {
+          const url = new URL('/login', req.url);
+          url.searchParams.set('callbackUrl', pathname);
+          return NextResponse.redirect(url);
+        }
+        
+        return true;
       },
     },
   }
@@ -45,12 +46,14 @@ export default withAuth(
 
 export const config = {
   matcher: [
-    '/manager/:path*',
-    '/api/admin/:path*',
-    '/dashboard',
-    '/reports',
-    '/leave',
-    '/profile',
-    '/calendar'
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api/auth (authentication routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public files (images, etc.)
+     */
+    '/((?!api/auth|_next/static|_next/image|favicon.ico|.*\\.png$|.*\\.jpg$|.*\\.jpeg$|.*\\.gif$|.*\\.svg$).*)',
   ]
 };

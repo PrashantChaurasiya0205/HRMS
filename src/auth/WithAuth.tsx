@@ -13,18 +13,12 @@ const WithAuth = ({ children }: WithAuthProps) => {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  // Remove automatic redirect - let individual pages handle their own auth logic
-  // useEffect(() => {
-  //   if (status === "unauthenticated") {
-  //     const timeout = setTimeout(() => {
-  //       router.push("/login"); // redirect to login page
-  //     }, 2000); // wait 2s to show spinner before redirect
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
 
-  //     return () => clearTimeout(timeout);
-  //   }
-  // }, [status, router]);
-
-  // Just show loading state and let pages handle their own auth logic
   if (status === "loading") {
     return (
       <div className="w-full min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -37,7 +31,10 @@ const WithAuth = ({ children }: WithAuthProps) => {
     );
   }
 
-  // Always render children and let individual pages handle authentication
+  if (status === "unauthenticated") {
+    return null; // Don't render anything while redirecting
+  }
+
   return <>{children}</>;
 };
 
