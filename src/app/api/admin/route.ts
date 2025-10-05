@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import UserProfile from '@/models/UserProfile';
+import SystemConfig from '@/models/SystemConfig';
 import dbConnect from '@/lib/dbConnect';
 
 // GET - Fetch all employees and working hours
@@ -23,16 +24,20 @@ export async function GET(request: NextRequest) {
     const employees = await UserProfile.find({}, 'email role firstName lastName leaveBalance').sort({ role: 1, email: 1 });
 
     // Get working hours from system configuration
-    const systemConfig = await UserProfile.findOne({ email: 'system@company.com' });
-    const workingHours = systemConfig && systemConfig.leaveBalance ? {
-      dailyHours: systemConfig.leaveBalance.sick || 8,
-      weeklyHours: systemConfig.leaveBalance.vacation || 40,
-      monthlyHours: systemConfig.leaveBalance.personal || 160
-    } : {
-      dailyHours: 8,
-      weeklyHours: 40,
-      monthlyHours: 160
-    };
+    let systemConfig = await SystemConfig.findOne().sort({ updatedAt: -1 });
+    if (!systemConfig) {
+      // Create default system config if none exists
+      systemConfig = await SystemConfig.create({
+        workingHours: {
+          dailyHours: 8,
+          weeklyHours: 40,
+          monthlyHours: 160
+        },
+        updatedBy: session.user.email
+      });
+    }
+    
+    const workingHours = systemConfig.workingHours;
 
     return NextResponse.json({ 
       employees,
@@ -83,24 +88,14 @@ export async function POST(request: NextRequest) {
         }
 
         // Save working hours to system configuration
-        await UserProfile.findOneAndUpdate(
-          { email: 'system@company.com' },
-          {
-            userId: 'system@company.com',
-            email: 'system@company.com',
-            firstName: 'System',
-            lastName: 'Configuration',
-            role: 'employee',
-            leaveBalance: {
-              sick: dailyHours,
-              vacation: weeklyHours,
-              personal: monthlyHours,
-              workFromHome: 0,
-              emergency: 0
-            }
+        await SystemConfig.create({
+          workingHours: {
+            dailyHours,
+            weeklyHours,
+            monthlyHours
           },
-          { upsert: true, new: true }
-        );
+          updatedBy: session.user.email
+        });
 
         return NextResponse.json({ 
           message: 'Working hours updated successfully',

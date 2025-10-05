@@ -31,7 +31,7 @@ export default function Statistics() {
 
   const fetchWorkingHours = async () => {
     try {
-      const response = await fetch('/api/admin');
+      const response = await fetch('/api/working-hours');
       if (response.ok) {
         const data = await response.json();
         setMaxWorkingHours(data.workingHours?.dailyHours || 8);

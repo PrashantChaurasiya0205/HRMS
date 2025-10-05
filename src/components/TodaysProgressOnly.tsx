@@ -50,15 +50,27 @@ export default function TodaysProgressOnly() {
       setCurrentTime(new Date());
     }, 1000);
 
-    // Refresh status every 30 seconds
+    // Refresh status only when actively working
     const refreshTimer = setInterval(() => {
+      // Only refresh if user is currently working (has checked in but not out)
+      if (attendanceStatus.hasCheckedIn && !attendanceStatus.hasCheckedOut) {
+        fetchAttendanceStatus();
+        fetchTodayRecord();
+      }
+    }, 10000); // Refresh every 10 seconds, but only when working
+
+    // Listen for attendance changes
+    const handleAttendanceChange = () => {
       fetchAttendanceStatus();
       fetchTodayRecord();
-    }, 30000);
+    };
+
+    window.addEventListener('attendanceChanged', handleAttendanceChange);
 
     return () => {
       clearInterval(timer);
       clearInterval(refreshTimer);
+      window.removeEventListener('attendanceChanged', handleAttendanceChange);
     };
   }, []);
 
@@ -94,7 +106,7 @@ export default function TodaysProgressOnly() {
 
   const fetchWorkingHours = async () => {
     try {
-      const response = await fetch('/api/admin');
+      const response = await fetch('/api/working-hours');
       if (response.ok) {
         const data = await response.json();
         setMaxWorkingHours(data.workingHours?.dailyHours || 8);

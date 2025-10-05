@@ -49,6 +49,8 @@ export default function ActionButtons() {
       if (response.ok) {
         dispatch({ type: 'CLOCK_IN' });
         await fetchAttendanceStatus();
+        // Dispatch custom event to refresh progress bar
+        window.dispatchEvent(new CustomEvent('attendanceChanged'));
       } else {
         const error = await response.json();
         alert(error.error || 'Failed to clock in');
@@ -76,6 +78,8 @@ export default function ActionButtons() {
       if (response.ok) {
         dispatch({ type: 'CLOCK_OUT' });
         await fetchAttendanceStatus();
+        // Dispatch custom event to refresh progress bar
+        window.dispatchEvent(new CustomEvent('attendanceChanged'));
         alert('Successfully checked out!');
       } else {
         const error = await response.json();
@@ -100,6 +104,8 @@ export default function ActionButtons() {
       if (response.ok) {
         dispatch({ type: 'START_LUNCH' });
         await fetchAttendanceStatus();
+        // Dispatch custom event to refresh progress bar
+        window.dispatchEvent(new CustomEvent('attendanceChanged'));
       } else {
         const error = await response.json();
         alert(error.error || 'Failed to start lunch');
@@ -122,6 +128,8 @@ export default function ActionButtons() {
       if (response.ok) {
         dispatch({ type: 'END_LUNCH' });
         await fetchAttendanceStatus();
+        // Dispatch custom event to refresh progress bar
+        window.dispatchEvent(new CustomEvent('attendanceChanged'));
       } else {
         const error = await response.json();
         alert(error.error || 'Failed to end lunch');

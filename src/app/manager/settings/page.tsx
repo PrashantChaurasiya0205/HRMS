@@ -46,14 +46,17 @@ export default function ManagerSettingsPage() {
 
   useEffect(() => {
     // Fallback check for unauthorized access
-    if (session && !['manager', 'CEO', 'Co-founder'].includes(session.user?.role || '')) {
+    if (!session) return;
+    
+    const userRole = (session.user?.role || '').toLowerCase();
+    const allowedRoles = ['manager', 'ceo', 'co-founder'];
+    
+    if (!allowedRoles.includes(userRole)) {
       router.push(`/access-denied?redirect=${window.location.pathname}`);
       return;
     }
     
-    if (session && ['manager', 'CEO', 'Co-founder'].includes(session.user?.role || '')) {
-      fetchEmployees();
-    }
+    fetchEmployees();
   }, [session, router]);
 
   const fetchEmployees = async () => {
@@ -156,29 +159,29 @@ export default function ManagerSettingsPage() {
 
   return (
     <AppLayout>
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-gray-50 py-4 sm:py-6 lg:py-8">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
           {/* Header */}
-          <div className="mb-8">
-            <div className="flex items-center mb-4">
-              <Settings2 className="w-8 h-8 text-blue-600 mr-3" />
+          <div className="mb-6 sm:mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center mb-4">
+              <Settings2 className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600 mr-3 mb-2 sm:mb-0" />
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">System Settings</h1>
-                <p className="text-gray-600 mt-1">Manage working hours and employee leave balances</p>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">System Settings</h1>
+                <p className="text-sm sm:text-base text-gray-600 mt-1">Manage working hours and employee leave balances</p>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {/* Daily Hours Configuration */}
-            <div className="lg:col-span-1">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center mb-6">
-                  <Clock className="w-6 h-6 text-blue-600 mr-3" />
-                  <h2 className="text-xl font-semibold text-gray-900">Working Hours</h2>
+            <div className="xl:col-span-1">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
+                <div className="flex items-center mb-4 sm:mb-6">
+                  <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 mr-2 sm:mr-3" />
+                  <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Working Hours</h2>
                 </div>
                 
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Daily Working Hours
@@ -187,7 +190,7 @@ export default function ManagerSettingsPage() {
                       type="number"
                       value={dailyHours}
                       onChange={(e) => setDailyHours(Number(e.target.value))}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black text-sm sm:text-base"
                       min="1"
                       max="24"
                       placeholder="Enter daily hours"
@@ -198,143 +201,123 @@ export default function ManagerSettingsPage() {
                   <button
                     onClick={handleDailyHoursUpdate}
                     disabled={saving}
-                    className="w-full flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="w-full flex items-center justify-center px-3 sm:px-4 py-2 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm sm:text-base"
                   >
                     {saving ? (
-                      <RefreshCw className="w-5 h-5 animate-spin mr-2" />
+                      <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mr-2" />
                     ) : (
-                      <Save className="w-5 h-5 mr-2" />
+                      <Save className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                     )}
-                    Update Daily Hours
+                    <span className="hidden sm:inline">Update Daily Hours</span>
+                    <span className="sm:hidden">Update Hours</span>
                   </button>
                 </div>
               </div>
             </div>
 
             {/* Employee Leave Management */}
-            <div className="lg:col-span-2">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center">
-                    <Users className="w-6 h-6 text-green-600 mr-3" />
+            <div className="xl:col-span-2">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6">
+                  <div className="flex items-center mb-4 sm:mb-0">
+                    <Users className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 mr-2 sm:mr-3" />
                     <div>
-                      <h2 className="text-xl font-semibold text-gray-900">Employee Leave Balances</h2>
-                      <p className="text-sm text-gray-600 mt-1">{employees.length} employees</p>
+                      <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Employee Leave Balances</h2>
+                      <p className="text-xs sm:text-sm text-gray-600 mt-1">{employees.length} employees</p>
                     </div>
                   </div>
                   
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <button
                       onClick={() => setShowBulkUpdate(true)}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center"
+                      className="px-3 sm:px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center text-sm"
                     >
                       <Calendar className="w-4 h-4 mr-2" />
-                      Bulk Update
-                    </button>
-                    <button
-                      onClick={async () => {
-                        try {
-                          const response = await fetch('/api/admin', { 
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ action: 'fixLeaveBalances' })
-                          });
-                          if (response.ok) {
-                            const data = await response.json();
-                            alert(`Fixed leave balances for ${data.updatedCount} users`);
-                            fetchEmployees();
-                          } else {
-                            alert('Error fixing leave balances');
-                          }
-                        } catch (error) {
-                          alert('Error fixing leave balances');
-                        }
-                      }}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
-                    >
-                      <RefreshCw className="w-4 h-4 mr-2" />
-                      Fix Balances
+                      <span className="hidden sm:inline">Bulk Update</span>
+                      <span className="sm:hidden">Bulk</span>
                     </button>
                   </div>
                 </div>
                 
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-gray-200">
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700">Employee</th>
-                        <th className="text-center py-3 px-2 font-semibold text-gray-700">Sick</th>
-                        <th className="text-center py-3 px-2 font-semibold text-gray-700">Vacation</th>
-                        <th className="text-center py-3 px-2 font-semibold text-gray-700">Personal</th>
-                        <th className="text-center py-3 px-2 font-semibold text-gray-700">WFH</th>
-                        <th className="text-center py-3 px-2 font-semibold text-gray-700">Emergency</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {employees.map((employee) => (
-                        <tr key={employee._id} className="border-b border-gray-100 hover:bg-gray-50">
-                          <td className="py-4 px-4">
-                            <div className="flex items-center">
-                              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                                <User className="w-5 h-5 text-blue-600" />
-                              </div>
-                              <div>
-                                <div className="font-medium text-gray-900">
-                                  {employee.firstName} {employee.lastName}
-                                </div>
-                                <div className="text-sm text-gray-500">{employee.email}</div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="text-center py-4 px-2">
-                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                              (employee.leaveBalance?.sick || 0) === 0 
-                                ? 'bg-yellow-100 text-yellow-800' 
-                                : 'bg-red-100 text-red-800'
-                            }`}>
-                              {employee.leaveBalance?.sick || 0}
-                            </span>
-                          </td>
-                          <td className="text-center py-4 px-2">
-                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                              (employee.leaveBalance?.vacation || 0) === 0 
-                                ? 'bg-yellow-100 text-yellow-800' 
-                                : 'bg-blue-100 text-blue-800'
-                            }`}>
-                              {employee.leaveBalance?.vacation || 0}
-                            </span>
-                          </td>
-                          <td className="text-center py-4 px-2">
-                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                              (employee.leaveBalance?.personal || 0) === 0 
-                                ? 'bg-yellow-100 text-yellow-800' 
-                                : 'bg-yellow-100 text-yellow-800'
-                            }`}>
-                              {employee.leaveBalance?.personal || 0}
-                            </span>
-                          </td>
-                          <td className="text-center py-4 px-2">
-                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                              (employee.leaveBalance?.workFromHome || 0) === 0 
-                                ? 'bg-yellow-100 text-yellow-800' 
-                                : 'bg-green-100 text-green-800'
-                            }`}>
-                              {employee.leaveBalance?.workFromHome || 0}
-                            </span>
-                          </td>
-                          <td className="text-center py-4 px-2">
-                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                              (employee.leaveBalance?.emergency || 0) === 0 
-                                ? 'bg-yellow-100 text-yellow-800' 
-                                : 'bg-purple-100 text-purple-800'
-                            }`}>
-                              {employee.leaveBalance?.emergency || 0}
-                            </span>
-                          </td>
+                <div className="overflow-x-auto -mx-4 sm:mx-0">
+                  <div className="min-w-full px-4 sm:px-0">
+                    <table className="w-full min-w-[600px]">
+                      <thead>
+                        <tr className="border-b border-gray-200">
+                          <th className="text-left py-3 px-2 sm:px-4 font-semibold text-gray-700 text-sm sm:text-base">Employee</th>
+                          <th className="text-center py-3 px-1 sm:px-2 font-semibold text-gray-700 text-xs sm:text-sm">Sick</th>
+                          <th className="text-center py-3 px-1 sm:px-2 font-semibold text-gray-700 text-xs sm:text-sm">Vacation</th>
+                          <th className="text-center py-3 px-1 sm:px-2 font-semibold text-gray-700 text-xs sm:text-sm">Personal</th>
+                          <th className="text-center py-3 px-1 sm:px-2 font-semibold text-gray-700 text-xs sm:text-sm">WFH</th>
+                          <th className="text-center py-3 px-1 sm:px-2 font-semibold text-gray-700 text-xs sm:text-sm">Emergency</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {employees.map((employee) => (
+                          <tr key={employee._id} className="border-b border-gray-100 hover:bg-gray-50">
+                            <td className="py-3 sm:py-4 px-2 sm:px-4">
+                              <div className="flex items-center">
+                                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 rounded-full flex items-center justify-center mr-2 sm:mr-3 flex-shrink-0">
+                                  <User className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <div className="font-medium text-gray-900 text-sm sm:text-base truncate">
+                                    {employee.firstName} {employee.lastName}
+                                  </div>
+                                  <div className="text-xs sm:text-sm text-gray-500 truncate">{employee.email}</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="text-center py-3 sm:py-4 px-1 sm:px-2">
+                              <span className={`inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${
+                                (employee.leaveBalance?.sick || 0) === 0 
+                                  ? 'bg-yellow-100 text-yellow-800' 
+                                  : 'bg-red-100 text-red-800'
+                              }`}>
+                                {employee.leaveBalance?.sick || 0}
+                              </span>
+                            </td>
+                            <td className="text-center py-3 sm:py-4 px-1 sm:px-2">
+                              <span className={`inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${
+                                (employee.leaveBalance?.vacation || 0) === 0 
+                                  ? 'bg-yellow-100 text-yellow-800' 
+                                  : 'bg-blue-100 text-blue-800'
+                              }`}>
+                                {employee.leaveBalance?.vacation || 0}
+                              </span>
+                            </td>
+                            <td className="text-center py-3 sm:py-4 px-1 sm:px-2">
+                              <span className={`inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${
+                                (employee.leaveBalance?.personal || 0) === 0 
+                                  ? 'bg-yellow-100 text-yellow-800' 
+                                  : 'bg-yellow-100 text-yellow-800'
+                              }`}>
+                                {employee.leaveBalance?.personal || 0}
+                              </span>
+                            </td>
+                            <td className="text-center py-3 sm:py-4 px-1 sm:px-2">
+                              <span className={`inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${
+                                (employee.leaveBalance?.workFromHome || 0) === 0 
+                                  ? 'bg-yellow-100 text-yellow-800' 
+                                  : 'bg-green-100 text-green-800'
+                              }`}>
+                                {employee.leaveBalance?.workFromHome || 0}
+                              </span>
+                            </td>
+                            <td className="text-center py-3 sm:py-4 px-1 sm:px-2">
+                              <span className={`inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${
+                                (employee.leaveBalance?.emergency || 0) === 0 
+                                  ? 'bg-yellow-100 text-yellow-800' 
+                                  : 'bg-purple-100 text-purple-800'
+                              }`}>
+                                {employee.leaveBalance?.emergency || 0}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             </div>
@@ -343,14 +326,14 @@ export default function ManagerSettingsPage() {
 
         {/* Bulk Update Modal */}
         {showBulkUpdate && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl p-6 w-full max-w-md">
-              <div className="flex items-center mb-6">
-                <Calendar className="w-6 h-6 text-green-600 mr-3" />
-                <h3 className="text-xl font-semibold text-gray-900">Bulk Update Leave Balances</h3>
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4">
+            <div className="bg-white rounded-xl p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center mb-4 sm:mb-6">
+                <Calendar className="w-5 h-5 sm:w-6 sm:h-6 text-green-600 mr-2 sm:mr-3" />
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900">Bulk Update Leave Balances</h3>
               </div>
               
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Sick Leave</label>
                   <input
@@ -359,7 +342,7 @@ export default function ManagerSettingsPage() {
                     onChange={(e) => {
                       setBulkInputValues({...bulkInputValues, sick: e.target.value});
                     }}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-black"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-black text-sm sm:text-base"
                     min="0"
                     step="1"
                     placeholder="Enter number or leave blank for 0"
@@ -374,7 +357,7 @@ export default function ManagerSettingsPage() {
                     onChange={(e) => {
                       setBulkInputValues({...bulkInputValues, vacation: e.target.value});
                     }}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-black"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-black text-sm sm:text-base"
                     min="0"
                     step="1"
                     placeholder="Enter number or leave blank for 0"
@@ -389,7 +372,7 @@ export default function ManagerSettingsPage() {
                     onChange={(e) => {
                       setBulkInputValues({...bulkInputValues, personal: e.target.value});
                     }}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-black"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-black text-sm sm:text-base"
                     min="0"
                     step="1"
                     placeholder="Enter number or leave blank for 0"
@@ -404,7 +387,7 @@ export default function ManagerSettingsPage() {
                     onChange={(e) => {
                       setBulkInputValues({...bulkInputValues, workFromHome: e.target.value});
                     }}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-black"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-black text-sm sm:text-base"
                     min="0"
                     step="1"
                     placeholder="Enter number or leave blank for 0"
@@ -419,7 +402,7 @@ export default function ManagerSettingsPage() {
                     onChange={(e) => {
                       setBulkInputValues({...bulkInputValues, emergency: e.target.value});
                     }}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-black"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-black text-sm sm:text-base"
                     min="0"
                     step="1"
                     placeholder="Enter number or leave blank for 0"
@@ -427,22 +410,23 @@ export default function ManagerSettingsPage() {
                 </div>
               </div>
               
-              <div className="flex gap-3 mt-6">
+              <div className="flex flex-col sm:flex-row gap-3 mt-4 sm:mt-6">
                 <button
                   onClick={handleBulkLeaveUpdate}
                   disabled={saving}
-                  className="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                  className="flex-1 px-3 sm:px-4 py-2 sm:py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-sm sm:text-base"
                 >
                   {saving ? (
-                    <RefreshCw className="w-5 h-5 animate-spin mr-2" />
+                    <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mr-2" />
                   ) : (
-                    <Save className="w-5 h-5 mr-2" />
+                    <Save className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                   )}
-                  Update All Employees
+                  <span className="hidden sm:inline">Update All Employees</span>
+                  <span className="sm:hidden">Update All</span>
                 </button>
                 <button
                   onClick={() => setShowBulkUpdate(false)}
-                  className="flex-1 px-4 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+                  className="flex-1 px-3 sm:px-4 py-2 sm:py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm sm:text-base"
                 >
                   Cancel
                 </button>

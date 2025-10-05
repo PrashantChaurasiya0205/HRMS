@@ -4,6 +4,8 @@ import AppLayout from '@/components/AppLayout';
 import LeaveBalance from '@/components/LeaveBalance';
 import { Calendar, Clock, FileText, Send, AlertCircle, RefreshCw } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 interface LeaveRequest {
   _id: string;
@@ -21,6 +23,8 @@ interface LeaveRequest {
 }
 
 export default function LeavePage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [leaveType, setLeaveType] = useState('sick');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -32,9 +36,32 @@ export default function LeavePage() {
   const [loadingBalance, setLoadingBalance] = useState(true);
 
   useEffect(() => {
-    fetchMyRequests();
-    fetchLeaveBalance();
-  }, []);
+    if (status === 'loading') return;
+    
+    if (status === 'unauthenticated') {
+      router.push('/login');
+      return;
+    }
+    
+    if (session) {
+      fetchMyRequests();
+      fetchLeaveBalance();
+    }
+  }, [session, status, router]);
+
+  // Show loading while checking authentication
+  if (status === 'loading') {
+    return (
+      <AppLayout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading...</p>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
 
   const fetchMyRequests = async () => {
     try {
