@@ -21,7 +21,7 @@ export default function ActionButtons() {
   const fetchAttendanceStatus = async () => {
     try {
       setStatusLoading(true);
-      const response = await fetch('/api/attendance/status');
+      const response = await fetch('/api/attendance/user-status');
       if (response.ok) {
         const data = await response.json();
         setAttendanceStatus(data);

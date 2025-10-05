@@ -12,9 +12,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get current date in local timezone
+    // Get current date and time in local timezone
     const now = new Date();
     const today = now.toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
+    
     await dbConnect();
     
     // Check if already checked in today
