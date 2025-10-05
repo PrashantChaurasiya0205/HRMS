@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
-import { Menu, X, Clock, BarChart3, User, FileText, Calendar, LogOut, Settings } from 'lucide-react';
+import { Menu, X, Clock, BarChart3, User, FileText, Calendar, LogOut, Settings, Shield } from 'lucide-react';
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,7 +13,9 @@ export default function Navigation() {
   const menuRef = useRef<HTMLDivElement>(null);
 
   const isActive = (path: string) => pathname === path;
-  const isManager = session?.user?.role === 'manager' || session?.user?.role === 'CEO' || session?.user?.role === 'Co-founder';
+  const userRole = (session?.user?.role || '').toLowerCase();
+  const isManager = ['manager', 'ceo', 'co-founder'].includes(userRole);
+  const isCEO = userRole === 'ceo';
 
   const handleLogout = () => {
     // Clear welcome message flag so it shows on next login
@@ -121,6 +123,17 @@ export default function Navigation() {
                 </Link>
               </>
             )}
+            {isCEO && (
+              <Link
+                href="/ceo"
+                className={`flex items-center transition-colors duration-200 px-2 py-1.5 rounded-md ${
+                  isActive('/ceo') ? 'text-purple-600 font-semibold bg-purple-50' : 'text-gray-600 hover:text-purple-600 hover:bg-gray-50'
+                }`}
+              >
+                <Shield className="w-4 h-4 xl:w-5 xl:h-5 mr-1.5 xl:mr-2" />
+                <span className="hidden xl:inline text-sm xl:text-base">CEO</span>
+              </Link>
+            )}
             <button
               onClick={handleLogout}
               className="flex items-center px-2 py-1.5 rounded-md text-gray-600 hover:text-red-600 hover:bg-red-50 transition-colors duration-200"
@@ -216,6 +229,18 @@ export default function Navigation() {
                     <span className="text-sm sm:text-base md:text-lg">Settings</span>
                   </Link>
                 </>
+              )}
+              {isCEO && (
+                <Link
+                  href="/ceo"
+                  onClick={() => setIsOpen(false)}
+                  className={`flex items-center px-4 sm:px-6 py-3 sm:py-4 rounded-lg transition-colors duration-200 ${
+                    isActive('/ceo') ? 'bg-purple-50 text-purple-600 font-semibold' : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  <Shield className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 mr-3 sm:mr-4" />
+                  <span className="text-sm sm:text-base md:text-lg">CEO</span>
+                </Link>
               )}
               <button
                 onClick={() => {

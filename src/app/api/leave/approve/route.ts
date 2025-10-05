@@ -13,8 +13,11 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user is manager, CEO, or Co-founder
-    if (!session.user.role || !['manager', 'CEO', 'Co-founder'].includes(session.user.role)) {
+    // Check if user is manager, CEO, or Co-founder (case-insensitive)
+    const userRole = (session.user.role || '').toLowerCase();
+    const allowedRoles = ['manager', 'ceo', 'co-founder'];
+    
+    if (!userRole || !allowedRoles.includes(userRole)) {
       return NextResponse.json({ error: 'Access denied. Manager/CEO/Co-founder role required.' }, { status: 403 });
     }
 
