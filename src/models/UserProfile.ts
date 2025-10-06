@@ -5,13 +5,14 @@ export interface IUserProfile extends Document {
   firstName: string;
   lastName: string;
   email: string;
+  password?: string; // Added for direct authentication
   phone?: string;
   department?: string;
   position?: string;
   employeeId?: string;
   hireDate?: string; // YYYY-MM-DD format
   address?: string;
-  role: 'employee' | 'manager'; // User role for access control
+  role: 'employee' | 'manager' | 'CEO' | 'Co-founder'; // User role for access control
   leaveBalance: {
     sick: number;
     vacation: number;
@@ -32,13 +33,14 @@ const userProfileSchema: Schema = new Schema({
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
   email: { type: String, required: true },
+  password: { type: String }, // Added for direct authentication
   phone: { type: String },
   department: { type: String },
   position: { type: String },
   employeeId: { type: String },
   hireDate: { type: String },
   address: { type: String },
-  role: { type: String, enum: ['employee', 'manager'], default: 'employee' },
+  role: { type: String, enum: ['employee', 'manager', 'CEO', 'Co-founder'], default: 'employee' },
   leaveBalance: {
     sick: { type: Number, default: 10 },
     vacation: { type: Number, default: 20 },

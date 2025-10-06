@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
 import { Calendar, Clock, AlertCircle, CheckCircle } from 'lucide-react';
 
 interface LeaveBalance {
@@ -13,15 +12,27 @@ interface LeaveBalance {
 }
 
 export default function LeaveBalance() {
-  const { data: session } = useSession();
+  const [user, setUser] = useState<any>(null);
   const [leaveBalance, setLeaveBalance] = useState<LeaveBalance | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (session?.user?.email) {
+    // Get user data from localStorage
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user) {
       fetchLeaveBalance();
     }
-  }, [session]);
+  }, [user]);
 
   const fetchLeaveBalance = async () => {
     try {

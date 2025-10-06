@@ -1,21 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getAuthenticatedUser } from '@/lib/authMiddleware';
+
 import Attendance from '@/models/Attendance';
 import dbConnect from '@/lib/dbConnect';
 import { differenceInDays, differenceInYears } from 'date-fns';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const user = await getAuthenticatedUser(request);
     
-    if (!session?.user?.email) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     await dbConnect();
     const attendances = await Attendance.find({
-      userId: session.user.email
+      userId: user.email
     });
 
     // Calculate statistics

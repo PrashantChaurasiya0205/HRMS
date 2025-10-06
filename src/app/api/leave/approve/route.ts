@@ -1,20 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getAuthenticatedUser } from '@/lib/authMiddleware';
+
 import LeaveRequest from '@/models/LeaveRequest';
 import UserProfile from '@/models/UserProfile';
 import dbConnect from '@/lib/dbConnect';
 
 export async function PATCH(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const user = await getAuthenticatedUser(request);
     
-    if (!session?.user?.email || !session?.user?.name) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Check if user is manager, CEO, or Co-founder (case-insensitive)
-    const userRole = (session.user.role || '').toLowerCase();
+    const userRole = (user.role || '').toLowerCase();
     const allowedRoles = ['manager', 'ceo', 'co-founder'];
     
     if (!userRole || !allowedRoles.includes(userRole)) {
@@ -47,7 +47,7 @@ export async function PATCH(request: NextRequest) {
     // Update the leave request
     leaveRequest.status = status;
     leaveRequest.reviewedAt = new Date();
-    leaveRequest.reviewedBy = session.user.email;
+    leaveRequest.reviewedBy = user.email;
     if (managerComments) {
       leaveRequest.managerComments = managerComments;
     }

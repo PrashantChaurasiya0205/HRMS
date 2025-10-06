@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getAuthenticatedUser } from '@/lib/authMiddleware';
 import Attendance from '@/models/Attendance';
 import SystemConfig from '@/models/SystemConfig';
 import dbConnect from '@/lib/dbConnect';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const user = await getAuthenticatedUser(request);
     
-    if (!session?.user?.email) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -21,7 +20,7 @@ export async function POST(request: NextRequest) {
     
     // Find today's attendance record
     const record = await Attendance.findOne({
-      userId: session.user.email,
+      userId: user.email,
       date: today
     });
 
@@ -51,7 +50,7 @@ export async function POST(request: NextRequest) {
 
     // Update the record
     await Attendance.findOneAndUpdate(
-      { userId: session.user.email, date: today },
+      { userId: user.email, date: today },
       {
         clockOut: now,
         totalWorkingHours: finalWorkingHours,

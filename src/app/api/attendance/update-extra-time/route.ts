@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getAuthenticatedUser } from '@/lib/authMiddleware';
 import dbConnect from '@/lib/dbConnect';
 import Attendance from '@/models/Attendance';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const user = await getAuthenticatedUser(request);
     
-    if (!session?.user?.email) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -28,7 +27,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify the record belongs to the current user
-    if (attendance.userId !== session.user.email) {
+    if (attendance.userId !== user.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 

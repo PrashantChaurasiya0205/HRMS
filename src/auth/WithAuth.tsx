@@ -1,7 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
@@ -9,17 +8,53 @@ interface WithAuthProps {
   children: React.ReactNode;
 }
 
+interface User {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+}
+
 const WithAuth = ({ children }: WithAuthProps) => {
-  const { data: session, status } = useSession();
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    if (status === "unauthenticated") {
+    // Check for user session
+    const checkSession = async () => {
+      try {
+        const response = await fetch("/api/auth/session");
+        const data = await response.json();
+        
+        if (data.user) {
+          // Get full user data from localStorage if available
+          const userData = localStorage.getItem("user");
+          if (userData) {
+            const parsedUser = JSON.parse(userData);
+            setUser(parsedUser);
+          } else {
+            setUser(data.user);
+          }
+        }
+      } catch (error) {
+        console.error("Session check error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    checkSession();
+  }, []);
+
+  useEffect(() => {
+    if (!loading && !user) {
       router.push("/login");
     }
-  }, [status, router]);
+  }, [loading, user, router]);
 
-  if (status === "loading") {
+  if (loading) {
     return (
       <div className="w-full min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="p-8 rounded-3xl shadow-2xl bg-white transform scale-105 transition-all animate-pulse">
@@ -31,7 +66,7 @@ const WithAuth = ({ children }: WithAuthProps) => {
     );
   }
 
-  if (status === "unauthenticated") {
+  if (!user) {
     return null; // Don't render anything while redirecting
   }
 

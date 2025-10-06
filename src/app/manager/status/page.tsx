@@ -1,7 +1,6 @@
 'use client';
 
 import AppLayout from '@/components/AppLayout';
-import { useSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Users, Clock, Coffee, CheckCircle, AlertCircle, RefreshCw, User, Calendar } from 'lucide-react';
@@ -23,30 +22,40 @@ interface EmployeeStatus {
 }
 
 export default function ManagerStatusPage() {
-  const { data: session, status } = useSession();
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const [employees, setEmployees] = useState<EmployeeStatus[]>([]);
-  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    if (status === 'loading') return;
-    
-    if (status === 'unauthenticated') {
-      router.push('/login');
-      return;
-    }
-    
-    if (session) {
-      const userRole = (session.user?.role || '').toLowerCase();
-      const allowedRoles = ['manager', 'ceo', 'co-founder'];
-      if (!allowedRoles.includes(userRole)) {
-        router.push('/access-denied');
-        return;
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        const parsedUser = JSON.parse(userData);
+        setUser(parsedUser);
+        
+        // Check if user has manager permissions
+        const userRole = (parsedUser.role || '').toLowerCase();
+        const allowedRoles = ['manager', 'ceo', 'co-founder'];
+        
+        if (!allowedRoles.includes(userRole)) {
+          router.push('/access-denied');
+          return;
+        }
+        
+        setLoading(false);
+        fetchEmployeeStatus();
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+        setLoading(false);
+        router.push('/login');
       }
-      fetchEmployeeStatus();
+    } else {
+      setLoading(false);
+      router.push('/login');
     }
-  }, [session, status, router]);
+  }, [router]);
 
   const fetchEmployeeStatus = async () => {
     try {
@@ -123,7 +132,7 @@ export default function ManagerStatusPage() {
     return `${h}h ${m}m`;
   };
 
-  if (status === 'loading') {
+  if (loading) {
     return (
       <AppLayout>
         <div className="min-h-screen flex items-center justify-center bg-gray-50">

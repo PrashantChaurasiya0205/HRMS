@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getAuthenticatedUser } from '@/lib/authMiddleware';
+
 import LeaveRequest from '@/models/LeaveRequest';
 import dbConnect from '@/lib/dbConnect';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const user = await getAuthenticatedUser(request);
     
-    if (!session?.user?.email || !session?.user?.name) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -34,8 +34,8 @@ export async function POST(request: NextRequest) {
     await dbConnect();
 
     const leaveRequest = new LeaveRequest({
-      userId: session.user.email,
-      employeeName: session.user.name,
+      userId: user.email,
+      employeeName: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email,
       leaveType,
       startDate,
       endDate,

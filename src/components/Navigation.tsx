@@ -3,24 +3,43 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { signOut, useSession } from 'next-auth/react';
 import { Menu, X, Clock, BarChart3, User, FileText, Calendar, LogOut, Settings, Shield, Users } from 'lucide-react';
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const pathname = usePathname();
-  const { data: session } = useSession();
   const menuRef = useRef<HTMLDivElement>(null);
 
+  // Get user data from localStorage
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+      }
+    }
+  }, []);
+
   const isActive = (path: string) => pathname === path;
-  const userRole = (session?.user?.role || '').toLowerCase();
+  const userRole = (user?.role || '').toLowerCase();
   const isManager = ['manager', 'ceo', 'co-founder'].includes(userRole);
   const isCEO = userRole === 'ceo';
 
-  const handleLogout = () => {
-    // Clear welcome message flag so it shows on next login
-    localStorage.removeItem('welcomeShown');
-    signOut({ callbackUrl: '/login' });
+  const handleLogout = async () => {
+    try {
+      // Call logout API
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      // Clear user data and redirect
+      localStorage.removeItem('user');
+      localStorage.removeItem('welcomeShown');
+      window.location.href = '/login';
+    }
   };
 
   // Close menu when clicking outside

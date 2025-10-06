@@ -1,14 +1,3 @@
-// COMMENTED OUT FOR COST SAVINGS - Using direct database authentication instead
-/*
-import NextAuth from "next-auth";
-import { authOptions } from "@/lib/auth";
-
-const handler = NextAuth(authOptions);
-
-export { handler as GET, handler as POST };
-*/
-
-// Simple login API endpoint
 import { NextRequest, NextResponse } from "next/server";
 import { authenticateUser } from "@/lib/auth";
 import jwt from "jsonwebtoken";

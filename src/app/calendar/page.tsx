@@ -2,11 +2,26 @@
 
 import AppLayout from '@/components/AppLayout';
 import Calendar from '@/components/Calendar';
-import { useSession } from 'next-auth/react';
+import { useState, useEffect } from 'react';
 
 export default function CalendarPage() {
-  const { data: session, status } = useSession();
-  const isManager = session?.user?.role === 'manager';
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Get user data from localStorage
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+      }
+    }
+    setLoading(false);
+  }, []);
+
+  const isManager = user?.role === 'manager';
 
   return (
     <AppLayout>

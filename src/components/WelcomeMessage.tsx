@@ -1,18 +1,29 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useSession } from 'next-auth/react';
 import { CheckCircle, X } from 'lucide-react';
 
 export default function WelcomeMessage() {
-  const { data: session } = useSession();
+  const [user, setUser] = useState<any>(null);
   const [showWelcome, setShowWelcome] = useState(false);
   const [hasShownWelcome, setHasShownWelcome] = useState(false);
   const messageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Get user data from localStorage
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     // Check if user just logged in and hasn't seen welcome message
-    if (session?.user && !hasShownWelcome) {
+    if (user && !hasShownWelcome) {
       const welcomeShown = localStorage.getItem('welcomeShown');
       if (!welcomeShown) {
         setShowWelcome(true);
@@ -28,7 +39,7 @@ export default function WelcomeMessage() {
         return () => clearTimeout(timer);
       }
     }
-  }, [session, hasShownWelcome]);
+  }, [user, hasShownWelcome]);
 
   // Close message when clicking outside
   useEffect(() => {
@@ -51,12 +62,12 @@ export default function WelcomeMessage() {
     setShowWelcome(false);
   };
 
-  if (!showWelcome || !session?.user) {
+  if (!showWelcome || !user) {
     return null;
   }
 
-  const userName = session.user.name || session.user.email?.split('@')[0] || 'User';
-  const userRole = session.user.role;
+  const userName = user.firstName || user.email?.split('@')[0] || 'User';
+  const userRole = user.role;
   
   const getWelcomeMessage = () => {
     if (userRole === 'manager') {

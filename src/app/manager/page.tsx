@@ -3,7 +3,6 @@
 import AppLayout from '@/components/AppLayout';
 import { Calendar, Clock, User, CheckCircle, XCircle, MessageSquare, Filter, Shield, Trash2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 interface LeaveRequest {
@@ -22,47 +21,50 @@ interface LeaveRequest {
 }
 
 export default function ManagerPage() {
-  const { data: session, status } = useSession();
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const [requests, setRequests] = useState<LeaveRequest[]>([]);
-  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [selectedRequest, setSelectedRequest] = useState<LeaveRequest | null>(null);
   const [managerComments, setManagerComments] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Check if user is manager
+  // Get user data and check permissions
   useEffect(() => {
-    if (status === 'loading') return; // Still loading
-    
-    if (status === 'unauthenticated') {
-      router.push('/login');
-      return;
-    }
-    
-    // Fallback check for unauthorized access
-    if (status === 'authenticated' && session) {
-      const userRole = (session.user?.role || '').toLowerCase();
-      const allowedRoles = ['manager', 'ceo', 'co-founder'];
-      
-      if (!allowedRoles.includes(userRole)) {
-        router.push(`/access-denied?redirect=${window.location.pathname}`);
-        return;
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        const parsedUser = JSON.parse(userData);
+        setUser(parsedUser);
+        
+        // Check if user has manager permissions
+        const userRole = (parsedUser.role || '').toLowerCase();
+        const allowedRoles = ['manager', 'ceo', 'co-founder'];
+        
+        if (!allowedRoles.includes(userRole)) {
+          router.push(`/access-denied?redirect=${window.location.pathname}`);
+          return;
+        }
+        
+        setLoading(false);
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+        setLoading(false);
+        router.push('/login');
       }
+    } else {
+      setLoading(false);
+      router.push('/login');
     }
-  }, [session, status, router]);
+  }, [router]);
 
   useEffect(() => {
     // Only fetch requests if user has proper role
-    if (session) {
-      const userRole = (session.user?.role || '').toLowerCase();
-      const allowedRoles = ['manager', 'ceo', 'co-founder'];
-      
-      if (allowedRoles.includes(userRole)) {
-        fetchRequests();
-      }
+    if (user) {
+      fetchRequests();
     }
-  }, [session]);
+  }, [user]);
 
   const fetchRequests = async () => {
     try {
@@ -82,7 +84,7 @@ export default function ManagerPage() {
   };
 
   // Show loading while checking authentication
-  if (status === 'loading') {
+  if (loading) {
     return (
       <AppLayout>
         <div className="container mx-auto px-4 py-8">
@@ -224,7 +226,7 @@ export default function ManagerPage() {
 
 
   // Show access denied if not authenticated or not manager
-  if (status === 'unauthenticated') {
+  if (!user) {
     return (
       <AppLayout>
         <div className="container mx-auto px-4 py-8">

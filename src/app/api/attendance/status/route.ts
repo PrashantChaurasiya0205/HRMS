@@ -1,20 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { getAuthenticatedUser } from '@/lib/authMiddleware';
 import Attendance from '@/models/Attendance';
 import UserProfile from '@/models/UserProfile';
 import dbConnect from '@/lib/dbConnect';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const user = await getAuthenticatedUser(request);
     
-    if (!session?.user?.email) {
+    if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Check if user is manager, CEO, or Co-founder (case-insensitive)
-    const userRole = (session.user?.role || '').toLowerCase();
+    const userRole = (user.role || '').toLowerCase();
     const allowedRoles = ['manager', 'ceo', 'co-founder'];
     
     if (!userRole || !allowedRoles.includes(userRole)) {

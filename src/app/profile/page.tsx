@@ -3,11 +3,21 @@
 import AppLayout from '@/components/AppLayout';
 import { User, Mail, Calendar, Clock, Settings, Edit, Save, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
-
 function ProfileContent() {
-  const { data: session } = useSession();
+  const [user, setUser] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
+  
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+      }
+    }
+  }, []);
+  
   const [stats, setStats] = useState({
     avgDailyHours: 0,
     workingDays: 0,
@@ -32,8 +42,10 @@ function ProfileContent() {
   });
 
   useEffect(() => {
-    fetchProfile();
-  }, [session]);
+    if (user) {
+      fetchProfile();
+    }
+  }, [user]);
 
   const fetchProfile = async () => {
     try {
@@ -43,13 +55,13 @@ function ProfileContent() {
         if (data) {
           setProfileData(data);
         } else {
-          // Initialize with session data if no profile exists
-          if (session?.user) {
+          // Initialize with user data if no profile exists
+          if (user) {
             setProfileData(prev => ({
               ...prev,
-              email: session.user?.email || '',
-              firstName: session.user?.name?.split(' ')[0] || '',
-              lastName: session.user?.name?.split(' ').slice(1).join(' ') || ''
+              email: user.email || '',
+              firstName: user.firstName || '',
+              lastName: user.lastName || ''
             }));
           }
         }

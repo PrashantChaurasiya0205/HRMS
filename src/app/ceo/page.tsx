@@ -1,7 +1,6 @@
 'use client';
 
 import AppLayout from '@/components/AppLayout';
-import { useSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { User, Save, RefreshCw, Shield, Users } from 'lucide-react';
@@ -15,10 +14,10 @@ interface Employee {
 }
 
 export default function CEOPage() {
-  const { data: session, status } = useSession();
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [newRole, setNewRole] = useState('');
@@ -26,22 +25,31 @@ export default function CEOPage() {
   const roles = ['employee', 'intern', 'hr', 'manager', 'co-founder', 'ceo'];
 
   useEffect(() => {
-    if (status === 'loading') return;
-    
-    if (status === 'unauthenticated') {
-      router.push('/login');
-      return;
-    }
-    
-    if (session) {
-      const userRole = (session.user?.role || '').toLowerCase();
-      if (userRole !== 'ceo') {
-        router.push('/access-denied');
-        return;
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        const parsedUser = JSON.parse(userData);
+        setUser(parsedUser);
+        
+        // Check if user is CEO
+        const userRole = (parsedUser.role || '').toLowerCase();
+        if (userRole !== 'ceo') {
+          router.push('/access-denied');
+          return;
+        }
+        
+        setLoading(false);
+        fetchEmployees();
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+        setLoading(false);
+        router.push('/login');
       }
-      fetchEmployees();
+    } else {
+      setLoading(false);
+      router.push('/login');
     }
-  }, [session, status, router]);
+  }, [router]);
 
   const fetchEmployees = async () => {
     try {
@@ -86,7 +94,7 @@ export default function CEOPage() {
     }
   };
 
-  if (status === 'loading') {
+  if (loading) {
     return (
       <AppLayout>
         <div className="min-h-screen flex items-center justify-center bg-gray-50">
