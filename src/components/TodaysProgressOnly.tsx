@@ -76,7 +76,7 @@ export default function TodaysProgressOnly() {
 
   const fetchAttendanceStatus = async () => {
     try {
-      const response = await fetch('/api/attendance/status');
+      const response = await fetch('/api/attendance/user-status');
       if (response.ok) {
         const data = await response.json();
         setAttendanceStatus(data);
@@ -294,16 +294,16 @@ export default function TodaysProgressOnly() {
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6">
-      <h3 className="text-lg font-semibold text-gray-800 mb-6 flex items-center">
-        <TrendingUp className="w-5 h-5 mr-2 text-blue-600" />
-        Today's Progress
+      <h3 className="text-lg font-semibold text-gray-800 mb-6 flex items-center flex-wrap gap-2">
+        <TrendingUp className="w-5 h-5 mr-2 text-blue-600 flex-shrink-0" />
+        <span className="break-words">Today's Progress</span>
         {sessionTime.isActive && (
-          <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full animate-pulse">
+          <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full animate-pulse flex-shrink-0">
             LIVE
           </span>
         )}
         {attendanceStatus.currentStatus === 'LUNCH_BREAK' && (
-          <span className="ml-2 px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full animate-pulse">
+          <span className="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full animate-pulse flex-shrink-0">
             LUNCH BREAK
           </span>
         )}
@@ -312,7 +312,7 @@ export default function TodaysProgressOnly() {
       <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
           <span className="text-sm font-medium text-gray-700">Today's Progress</span>
-          <span className="text-sm text-gray-600">
+          <span className="text-sm text-gray-600 break-words">
             {Math.floor(sessionTime.totalHours)}h {Math.floor((sessionTime.totalHours % 1) * 60)}m / {maxWorkingHours}h
           </span>
         </div>
@@ -343,15 +343,15 @@ export default function TodaysProgressOnly() {
           })}
         </div>
         <div className="flex flex-col sm:flex-row sm:justify-between gap-1 mt-2">
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-gray-500 break-words">
             {sessionTime.percentage.toFixed(0)}% of daily target
           </div>
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-gray-500 break-words">
             Clocked in at: {todayRecord?.clockIn ? new Date(todayRecord.clockIn).toLocaleTimeString() : 'N/A'}
           </div>
         </div>
         {attendanceStatus.hasCheckedOut && todayRecord?.clockOut && (
-          <div className="text-xs text-gray-500 mt-1">
+          <div className="text-xs text-gray-500 mt-1 break-words">
             Clocked out at: {new Date(todayRecord.clockOut).toLocaleTimeString()}
           </div>
         )}

@@ -10,7 +10,8 @@ export default function ActionButtons() {
   const [attendanceStatus, setAttendanceStatus] = useState({
     hasCheckedIn: false,
     hasCheckedOut: false,
-    currentStatus: 'IDLE'
+    currentStatus: 'IDLE',
+    hasCompletedLunch: false
   });
   const [statusLoading, setStatusLoading] = useState(true);
 
@@ -127,6 +128,12 @@ export default function ActionButtons() {
       
       if (response.ok) {
         dispatch({ type: 'END_LUNCH' });
+        // Mark lunch as completed
+        setAttendanceStatus(prev => ({
+          ...prev,
+          hasCompletedLunch: true,
+          currentStatus: 'WORKING'
+        }));
         await fetchAttendanceStatus();
         // Dispatch custom event to refresh progress bar
         window.dispatchEvent(new CustomEvent('attendanceChanged'));
@@ -177,6 +184,20 @@ export default function ActionButtons() {
     // Handle different working states
     switch (status) {
       case 'WORKING':
+        // Check if lunch has already been completed
+        if (attendanceStatus.hasCompletedLunch) {
+          return {
+            primary: {
+              text: 'Clock Out',
+              icon: LogOut,
+              onClick: handleClockOut,
+              className: 'bg-red-600 hover:bg-red-700 text-white',
+              disabled: isLoading,
+            },
+            secondary: null,
+          };
+        }
+        
         return {
           primary: {
             text: 'Start Lunch',

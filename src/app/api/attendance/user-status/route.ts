@@ -24,7 +24,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       hasCheckedIn: !!record?.clockIn,
       hasCheckedOut: !!record?.clockOut,
-      currentStatus: record?.status || 'IDLE'
+      currentStatus: record?.status || 'IDLE',
+      hasCompletedLunch: !!(record?.lunchStart && record?.lunchEnd)
     });
 
   } catch (error) {

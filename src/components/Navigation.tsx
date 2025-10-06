@@ -51,11 +51,11 @@ export default function Navigation() {
               alt="Workshant Logo" 
               className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-9 lg:h-9" 
             />
-            <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-800">Workshant</h1>
+            <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-800 break-words">Workshant</h1>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-2 xl:gap-3 2xl:gap-4">
+          <div className="hidden lg:flex items-center gap-1 xl:gap-2 2xl:gap-3 flex-wrap">
             <Link
               href="/dashboard"
               className={`flex items-center transition-colors duration-200 px-2 py-1.5 rounded-md ${
@@ -63,7 +63,7 @@ export default function Navigation() {
               }`}
             >
               <Clock className="w-4 h-4 xl:w-5 xl:h-5 mr-1.5 xl:mr-2" />
-              <span className="hidden xl:inline text-sm xl:text-base">Dashboard</span>
+              <span className="hidden xl:inline text-sm xl:text-base whitespace-nowrap">Dashboard</span>
             </Link>
             <Link
               href="/reports"
@@ -72,7 +72,7 @@ export default function Navigation() {
               }`}
             >
               <BarChart3 className="w-4 h-4 xl:w-5 xl:h-5 mr-1.5 xl:mr-2" />
-              <span className="hidden xl:inline text-sm xl:text-base">Reports</span>
+              <span className="hidden xl:inline text-sm xl:text-base whitespace-nowrap">Reports</span>
             </Link>
             <Link
               href="/leave"
@@ -81,7 +81,7 @@ export default function Navigation() {
               }`}
             >
               <FileText className="w-4 h-4 xl:w-5 xl:h-5 mr-1.5 xl:mr-2" />
-              <span className="hidden xl:inline text-sm xl:text-base">Leave</span>
+              <span className="hidden xl:inline text-sm xl:text-base whitespace-nowrap">Leave</span>
             </Link>
             <Link
               href="/profile"
@@ -90,7 +90,7 @@ export default function Navigation() {
               }`}
             >
               <User className="w-4 h-4 xl:w-5 xl:h-5 mr-1.5 xl:mr-2" />
-              <span className="hidden xl:inline text-sm xl:text-base">Profile</span>
+              <span className="hidden xl:inline text-sm xl:text-base whitespace-nowrap">Profile</span>
             </Link>
             <Link
               href="/calendar"
@@ -99,7 +99,7 @@ export default function Navigation() {
               }`}
             >
               <Calendar className="w-4 h-4 xl:w-5 xl:h-5 mr-1.5 xl:mr-2" />
-              <span className="hidden xl:inline text-sm xl:text-base">Calendar</span>
+              <span className="hidden xl:inline text-sm xl:text-base whitespace-nowrap">Calendar</span>
             </Link>
             {isManager && (
               <>
@@ -110,7 +110,7 @@ export default function Navigation() {
                   }`}
                 >
                   <User className="w-4 h-4 xl:w-5 xl:h-5 mr-1.5 xl:mr-2" />
-                  <span className="hidden xl:inline text-sm xl:text-base">Manager</span>
+                  <span className="hidden xl:inline text-sm xl:text-base whitespace-nowrap">Manager</span>
                 </Link>
                 <Link
                   href="/manager/settings"
@@ -119,7 +119,7 @@ export default function Navigation() {
                   }`}
                 >
                   <Settings className="w-4 h-4 xl:w-5 xl:h-5 mr-1.5 xl:mr-2" />
-                  <span className="hidden xl:inline text-sm xl:text-base">Settings</span>
+                  <span className="hidden xl:inline text-sm xl:text-base whitespace-nowrap">Settings</span>
                 </Link>
                 <Link
                   href="/manager/status"
@@ -128,7 +128,7 @@ export default function Navigation() {
                   }`}
                 >
                   <Users className="w-4 h-4 xl:w-5 xl:h-5 mr-1.5 xl:mr-2" />
-                  <span className="hidden xl:inline text-sm xl:text-base">Status</span>
+                  <span className="hidden xl:inline text-sm xl:text-base whitespace-nowrap">Status</span>
                 </Link>
               </>
             )}
@@ -140,7 +140,7 @@ export default function Navigation() {
                 }`}
               >
                 <Shield className="w-4 h-4 xl:w-5 xl:h-5 mr-1.5 xl:mr-2" />
-                <span className="hidden xl:inline text-sm xl:text-base">CEO</span>
+                <span className="hidden xl:inline text-sm xl:text-base whitespace-nowrap">CEO</span>
               </Link>
             )}
             <button
@@ -148,7 +148,7 @@ export default function Navigation() {
               className="flex items-center px-2 py-1.5 rounded-md text-gray-600 hover:text-red-600 hover:bg-red-50 transition-colors duration-200"
             >
               <LogOut className="w-4 h-4 xl:w-5 xl:h-5 mr-1.5 xl:mr-2" />
-              <span className="hidden xl:inline text-sm xl:text-base">Logout</span>
+              <span className="hidden xl:inline text-sm xl:text-base whitespace-nowrap">Logout</span>
             </button>
           </div>
 
