@@ -133,7 +133,7 @@ export default function TodaysProgressOnly() {
   // Calculate session time using actual clock-in time from database
   const calculateSessionTime = () => {
     if (!todayRecord) {
-      return { hours: 0, percentage: 0, isActive: false, segments: [] };
+      return { hours: 0, percentage: 0, isActive: false, segments: [], totalHours: 0 };
     }
 
     // Use actual clock-in time from database (ISO string)
@@ -143,7 +143,7 @@ export default function TodaysProgressOnly() {
     // Check if clockInTime is valid
     if (isNaN(clockInTime.getTime())) {
       console.error('Invalid clock-in time:', todayRecord.clockIn);
-      return { hours: 0, percentage: 0, isActive: false, segments: [] };
+      return { hours: 0, percentage: 0, isActive: false, segments: [], totalHours: 0 };
     }
 
     // If clocked out, use clock-out time instead of current time
@@ -159,6 +159,9 @@ export default function TodaysProgressOnly() {
     const totalMinutes = elapsed / (1000 * 60);
     const targetMinutes = maxWorkingHours * 60; // max hours in minutes
     
+    // Calculate total working hours including lunch time
+    let totalWorkingHours = elapsedHours;
+    
     if (todayRecord.lunchStart && todayRecord.lunchEnd) {
       const lunchStart = new Date(todayRecord.lunchStart);
       const lunchEnd = new Date(todayRecord.lunchEnd);
@@ -166,9 +169,10 @@ export default function TodaysProgressOnly() {
       // Working time before lunch
       const beforeLunchMinutes = (lunchStart.getTime() - clockInTime.getTime()) / (1000 * 60);
       if (beforeLunchMinutes > 0) {
+        const beforeLunchWidth = Math.min((beforeLunchMinutes / targetMinutes) * 100, 100);
         segments.push({
           type: 'working',
-          width: (beforeLunchMinutes / targetMinutes) * 100,
+          width: beforeLunchWidth,
           label: 'Working'
         });
       }
@@ -176,9 +180,10 @@ export default function TodaysProgressOnly() {
       // Lunch time
       const lunchMinutes = (lunchEnd.getTime() - lunchStart.getTime()) / (1000 * 60);
       if (lunchMinutes > 0) {
+        const lunchWidth = Math.min((lunchMinutes / targetMinutes) * 100, 100);
         segments.push({
           type: 'lunch',
-          width: (lunchMinutes / targetMinutes) * 100,
+          width: lunchWidth,
           label: 'Lunch Break'
         });
       }
@@ -186,9 +191,10 @@ export default function TodaysProgressOnly() {
       // Working time after lunch
       const afterLunchMinutes = (now.getTime() - lunchEnd.getTime()) / (1000 * 60);
       if (afterLunchMinutes > 0) {
+        const afterLunchWidth = Math.min((afterLunchMinutes / targetMinutes) * 100, 100);
         segments.push({
           type: 'working',
-          width: (afterLunchMinutes / targetMinutes) * 100,
+          width: afterLunchWidth,
           label: 'Working'
         });
       }
@@ -198,34 +204,41 @@ export default function TodaysProgressOnly() {
       const currentLunchMinutes = (now.getTime() - new Date(todayRecord.lunchStart).getTime()) / (1000 * 60);
       
       if (beforeLunchMinutes > 0) {
+        const beforeLunchWidth = Math.min((beforeLunchMinutes / targetMinutes) * 100, 100);
         segments.push({
           type: 'working',
-          width: (beforeLunchMinutes / targetMinutes) * 100,
+          width: beforeLunchWidth,
           label: 'Working'
         });
       }
       
       if (currentLunchMinutes > 0) {
+        const lunchWidth = Math.min((currentLunchMinutes / targetMinutes) * 100, 100);
         segments.push({
           type: 'lunch',
-          width: (currentLunchMinutes / targetMinutes) * 100,
+          width: lunchWidth,
           label: 'Lunch Break'
         });
       }
     } else {
       // No lunch taken yet
+      const workingWidth = Math.min((totalMinutes / targetMinutes) * 100, 100);
       segments.push({
         type: 'working',
-        width: Math.min((totalMinutes / targetMinutes) * 100, 100),
+        width: workingWidth,
         label: 'Working'
       });
     }
     
+    // Calculate total hours including lunch time
+    const totalHours = Math.max(0, elapsedHours);
+    
     return {
       hours: Math.max(0, elapsedHours),
-      percentage: getProgressPercentage(elapsedHours),
+      percentage: getProgressPercentage(totalHours),
       isActive: !attendanceStatus.hasCheckedOut,
-      segments
+      segments,
+      totalHours
     };
   };
 
@@ -300,29 +313,34 @@ export default function TodaysProgressOnly() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
           <span className="text-sm font-medium text-gray-700">Today's Progress</span>
           <span className="text-sm text-gray-600">
-            {Math.floor(sessionTime.hours)}h {Math.floor((sessionTime.hours % 1) * 60)}m / {maxWorkingHours}h
+            {Math.floor(sessionTime.totalHours)}h {Math.floor((sessionTime.totalHours % 1) * 60)}m / {maxWorkingHours}h
           </span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2 relative">
-          {sessionTime.segments.map((segment, index) => (
-            <div
-              key={index}
-              className={`absolute top-0 h-2 rounded-full transition-all duration-500 cursor-pointer group ${
-                segment.type === 'lunch' 
-                  ? 'bg-gradient-to-r from-green-500 to-green-600' 
-                  : 'bg-gradient-to-r from-red-500 to-red-600'
-              }`}
-              style={{ 
-                width: `${segment.width}%`,
-                left: `${sessionTime.segments.slice(0, index).reduce((sum, s) => sum + s.width, 0)}%`
-              }}
-            >
-              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
-                {segment.label}
-                <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+        <div className="w-full bg-gray-200 rounded-full h-2 relative overflow-hidden">
+          {sessionTime.segments.map((segment, index) => {
+            const leftPosition = sessionTime.segments.slice(0, index).reduce((sum, s) => sum + s.width, 0);
+            const segmentWidth = Math.min(segment.width, 100 - leftPosition);
+            
+            return (
+              <div
+                key={index}
+                className={`absolute top-0 h-2 rounded-full transition-all duration-500 cursor-pointer group ${
+                  segment.type === 'lunch' 
+                    ? 'bg-gradient-to-r from-green-500 to-green-600' 
+                    : 'bg-gradient-to-r from-red-500 to-red-600'
+                }`}
+                style={{ 
+                  width: `${segmentWidth}%`,
+                  left: `${leftPosition}%`
+                }}
+              >
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
+                  {segment.label}
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
         <div className="flex flex-col sm:flex-row sm:justify-between gap-1 mt-2">
           <div className="text-xs text-gray-500">
