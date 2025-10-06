@@ -1,5 +1,3 @@
-// COMMENTED OUT FOR COST SAVINGS - Using direct database authentication instead
-/*
 import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import UserProfile from "@/models/UserProfile";
@@ -109,45 +107,4 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   secret: process.env.NEXTAUTH_SECRET,
-};
-*/
-
-// Simple database-based authentication
-import UserProfile from "@/models/UserProfile";
-import dbConnect from "@/lib/dbConnect";
-import bcrypt from "bcryptjs";
-
-export interface SimpleUser {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-}
-
-export const authenticateUser = async (email: string, password: string): Promise<SimpleUser | null> => {
-  try {
-    await dbConnect();
-    const user = await UserProfile.findOne({ email });
-    
-    if (!user || !user.password) {
-      return null;
-    }
-    
-    const isValidPassword = await bcrypt.compare(password, user.password);
-    if (!isValidPassword) {
-      return null;
-    }
-    
-    return {
-      id: (user._id as any).toString(),
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      role: user.role
-    };
-  } catch (error) {
-    console.error('Authentication error:', error);
-    return null;
-  }
 };

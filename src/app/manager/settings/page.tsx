@@ -1,6 +1,7 @@
 'use client';
 
 import AppLayout from '@/components/AppLayout';
+import { useSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { User, Clock, Calendar, Save, RefreshCw, AlertCircle, Users, Settings2 } from 'lucide-react';
@@ -21,11 +22,11 @@ interface Employee {
 }
 
 export default function ManagerSettingsPage() {
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: session } = useSession();
   const router = useRouter();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [dailyHours, setDailyHours] = useState(8);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [showBulkUpdate, setShowBulkUpdate] = useState(false);
   const [bulkLeaveBalances, setBulkLeaveBalances] = useState({
@@ -44,33 +45,19 @@ export default function ManagerSettingsPage() {
   });
 
   useEffect(() => {
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      try {
-        const parsedUser = JSON.parse(userData);
-        setUser(parsedUser);
-        
-        // Check if user has manager permissions
-        const userRole = (parsedUser.role || '').toLowerCase();
-        const allowedRoles = ['manager', 'ceo', 'co-founder'];
-        
-        if (!allowedRoles.includes(userRole)) {
-          router.push(`/access-denied?redirect=${window.location.pathname}`);
-          return;
-        }
-        
-        setLoading(false);
-        fetchEmployees();
-      } catch (error) {
-        console.error('Error parsing user data:', error);
-        setLoading(false);
-        router.push('/login');
-      }
-    } else {
-      setLoading(false);
-      router.push('/login');
+    // Fallback check for unauthorized access
+    if (!session) return;
+    
+    const userRole = (session.user?.role || '').toLowerCase();
+    const allowedRoles = ['manager', 'ceo', 'co-founder'];
+    
+    if (!allowedRoles.includes(userRole)) {
+      router.push(`/access-denied?redirect=${window.location.pathname}`);
+      return;
     }
-  }, [router]);
+    
+    fetchEmployees();
+  }, [session, router]);
 
   const fetchEmployees = async () => {
     try {

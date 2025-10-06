@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuthenticatedUser } from '@/lib/authMiddleware';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import UserProfile from '@/models/UserProfile';
 import SystemConfig from '@/models/SystemConfig';
 import dbConnect from '@/lib/dbConnect';
@@ -7,13 +8,13 @@ import dbConnect from '@/lib/dbConnect';
 // GET - Fetch all employees and working hours
 export async function GET(request: NextRequest) {
   try {
-    const user = await getAuthenticatedUser(request);
+    const session = await getServerSession(authOptions);
     
-    if (!user) {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userRole = user.role.toLowerCase();
+    const userRole = (session.user.role || '').toLowerCase();
     const allowedRoles = ['manager', 'ceo', 'co-founder'];
     
     if (!userRole || !allowedRoles.includes(userRole)) {
@@ -35,7 +36,7 @@ export async function GET(request: NextRequest) {
           weeklyHours: 40,
           monthlyHours: 160
         },
-        updatedBy: user.email
+        updatedBy: session.user.email
       });
     }
     
@@ -55,13 +56,13 @@ export async function GET(request: NextRequest) {
 // POST - Handle various admin operations
 export async function POST(request: NextRequest) {
   try {
-    const user = await getAuthenticatedUser(request);
+    const session = await getServerSession(authOptions);
     
-    if (!user) {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userRole = (user.role || '').toLowerCase();
+    const userRole = (session.user.role || '').toLowerCase();
     const allowedRoles = ['manager', 'ceo', 'co-founder'];
     
     if (!userRole || !allowedRoles.includes(userRole)) {
@@ -99,7 +100,7 @@ export async function POST(request: NextRequest) {
             weeklyHours,
             monthlyHours
           },
-          updatedBy: user.email
+          updatedBy: session.user.email
         });
 
         return NextResponse.json({ 

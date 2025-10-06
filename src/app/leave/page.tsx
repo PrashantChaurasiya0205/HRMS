@@ -4,6 +4,7 @@ import AppLayout from '@/components/AppLayout';
 import LeaveBalance from '@/components/LeaveBalance';
 import { Calendar, Clock, FileText, Send, AlertCircle, RefreshCw } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 interface LeaveRequest {
@@ -22,8 +23,7 @@ interface LeaveRequest {
 }
 
 export default function LeavePage() {
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [leaveType, setLeaveType] = useState('sick');
   const [startDate, setStartDate] = useState('');
@@ -36,32 +36,21 @@ export default function LeavePage() {
   const [loadingBalance, setLoadingBalance] = useState(true);
 
   useEffect(() => {
-    // Get user data from localStorage
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      try {
-        setUser(JSON.parse(userData));
-        setLoading(false);
-      } catch (error) {
-        console.error('Error parsing user data:', error);
-        setLoading(false);
-      }
-    } else {
-      setLoading(false);
+    if (status === 'loading') return;
+    
+    if (status === 'unauthenticated') {
       router.push('/login');
       return;
     }
-  }, [router]);
-
-  useEffect(() => {
-    if (user) {
+    
+    if (session) {
       fetchMyRequests();
       fetchLeaveBalance();
     }
-  }, [user]);
+  }, [session, status, router]);
 
   // Show loading while checking authentication
-  if (loading) {
+  if (status === 'loading') {
     return (
       <AppLayout>
         <div className="container mx-auto px-4 py-8">

@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 
 export default withAuth(
   function middleware(req) {
-    const token = req.nextauth.token;
+    const token = req.nextauth.token as any;
     const { pathname } = req.nextUrl;
 
     // Check if user is trying to access manager/admin pages

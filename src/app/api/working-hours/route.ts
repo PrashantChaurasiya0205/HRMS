@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuthenticatedUser } from '@/lib/authMiddleware';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import SystemConfig from '@/models/SystemConfig';
 import dbConnect from '@/lib/dbConnect';
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await getAuthenticatedUser(request);
+    const session = await getServerSession(authOptions);
     
-    if (!user) {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -23,7 +24,7 @@ export async function GET(request: NextRequest) {
           weeklyHours: 40,
           monthlyHours: 160
         },
-        updatedBy: user.email
+        updatedBy: session.user.email
       });
     }
     

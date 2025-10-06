@@ -1,7 +1,12 @@
 'use client';
 
+import SessionProvider from '@/components/SessionProvider';
 import LoginCard from '@/components/loginCard';
 
 export default function LoginPage() {
-  return <LoginCard />;
+  return (
+    <SessionProvider>
+      <LoginCard />
+    </SessionProvider>
+  );
 }

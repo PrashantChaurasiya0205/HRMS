@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuthenticatedUser } from '@/lib/authMiddleware';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 import Holiday from '@/models/Holiday';
 import dbConnect from '@/lib/dbConnect';
@@ -9,14 +10,14 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await getAuthenticatedUser(request);
+    const session = await getServerSession(authOptions);
     
-    if (!user) {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Check if user is manager
-    if (user.role !== 'manager') {
+    if (session.user.role !== 'manager') {
       return NextResponse.json({ error: 'Access denied. Manager role required.' }, { status: 403 });
     }
 
@@ -56,14 +57,14 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = await getAuthenticatedUser(request);
+    const session = await getServerSession(authOptions);
     
-    if (!user) {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Check if user is manager
-    if (user.role !== 'manager') {
+    if (session.user.role !== 'manager') {
       return NextResponse.json({ error: 'Access denied. Manager role required.' }, { status: 403 });
     }
 

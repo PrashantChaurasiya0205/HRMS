@@ -1,20 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuthenticatedUser } from '@/lib/authMiddleware';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import LeaveRequest from '@/models/LeaveRequest';
 import dbConnect from '@/lib/dbConnect';
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await getAuthenticatedUser(request);
+    const session = await getServerSession(authOptions);
     
-    if (!user) {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     await dbConnect();
     
     const requests = await LeaveRequest.find({
-      userId: user.email
+      userId: session.user.email
     }).sort({ submittedAt: -1 });
 
     return NextResponse.json(requests);
@@ -27,14 +28,14 @@ export async function GET(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const user = await getAuthenticatedUser(request);
+    const session = await getServerSession(authOptions);
     
-    if (!user) {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Check if user is manager, CEO, or Co-founder
-    const userRole = (user.role || '').toLowerCase();
+    const userRole = (session.user?.role || '').toLowerCase();
     const allowedRoles = ['manager', 'ceo', 'co-founder'];
     
     if (!allowedRoles.includes(userRole)) {

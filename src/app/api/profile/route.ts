@@ -1,30 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuthenticatedUser } from '@/lib/authMiddleware';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import UserProfile from '@/models/UserProfile';
 import dbConnect from '@/lib/dbConnect';
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await getAuthenticatedUser(request);
+    const session = await getServerSession(authOptions);
     
-    if (!user) {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     await dbConnect();
-    let profile = await UserProfile.findOne({ email: user.email });
+    let profile = await UserProfile.findOne({ email: session.user.email });
 
     // If profile doesn't exist, create one automatically
     if (!profile) {
-      const nameParts = user.email.split('@')[0].split('.');
-      // Set admin@company.com as manager
-      const userRole = user.email === 'admin@company.com' ? 'manager' : 'employee';
+      const nameParts = session.user.name?.split(' ') || ['', ''];
+      // Set prashantworkoffice@gmail.com as manager, others as employee
+      const userRole = session.user.email === 'prashantworkoffice@gmail.com' ? 'manager' : 'employee';
       
       profile = new UserProfile({
-        userId: user.email,
-        email: user.email,
-        firstName: nameParts[0] || 'User',
-        lastName: nameParts[1] || 'User',
+        userId: session.user.email,
+        email: session.user.email,
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' ') || '',
         role: userRole,
         leaveBalance: {
           sick: 10,
@@ -47,9 +48,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await getAuthenticatedUser(request);
+    const session = await getServerSession(authOptions);
     
-    if (!user) {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -63,10 +64,10 @@ export async function POST(request: NextRequest) {
     await dbConnect();
     
     const profile = await UserProfile.findOneAndUpdate(
-      { email: user.email },
+      { email: session.user.email },
       {
-        userId: user.email,
-        email: user.email,
+        userId: session.user.email,
+        email: session.user.email,
         firstName,
         lastName,
         phone,

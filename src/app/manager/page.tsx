@@ -3,6 +3,7 @@
 import AppLayout from '@/components/AppLayout';
 import { Calendar, Clock, User, CheckCircle, XCircle, MessageSquare, Filter, Shield, Trash2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 interface LeaveRequest {
@@ -21,50 +22,47 @@ interface LeaveRequest {
 }
 
 export default function ManagerPage() {
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [requests, setRequests] = useState<LeaveRequest[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [selectedRequest, setSelectedRequest] = useState<LeaveRequest | null>(null);
   const [managerComments, setManagerComments] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Get user data and check permissions
+  // Check if user is manager
   useEffect(() => {
-    const userData = localStorage.getItem('user');
-    if (userData) {
-      try {
-        const parsedUser = JSON.parse(userData);
-        setUser(parsedUser);
-        
-        // Check if user has manager permissions
-        const userRole = (parsedUser.role || '').toLowerCase();
-        const allowedRoles = ['manager', 'ceo', 'co-founder'];
-        
-        if (!allowedRoles.includes(userRole)) {
-          router.push(`/access-denied?redirect=${window.location.pathname}`);
-          return;
-        }
-        
-        setLoading(false);
-      } catch (error) {
-        console.error('Error parsing user data:', error);
-        setLoading(false);
-        router.push('/login');
-      }
-    } else {
-      setLoading(false);
+    if (status === 'loading') return; // Still loading
+    
+    if (status === 'unauthenticated') {
       router.push('/login');
+      return;
     }
-  }, [router]);
+    
+    // Fallback check for unauthorized access
+    if (status === 'authenticated' && session) {
+      const userRole = (session.user?.role || '').toLowerCase();
+      const allowedRoles = ['manager', 'ceo', 'co-founder'];
+      
+      if (!allowedRoles.includes(userRole)) {
+        router.push(`/access-denied?redirect=${window.location.pathname}`);
+        return;
+      }
+    }
+  }, [session, status, router]);
 
   useEffect(() => {
     // Only fetch requests if user has proper role
-    if (user) {
-      fetchRequests();
+    if (session) {
+      const userRole = (session.user?.role || '').toLowerCase();
+      const allowedRoles = ['manager', 'ceo', 'co-founder'];
+      
+      if (allowedRoles.includes(userRole)) {
+        fetchRequests();
+      }
     }
-  }, [user]);
+  }, [session]);
 
   const fetchRequests = async () => {
     try {
@@ -84,7 +82,7 @@ export default function ManagerPage() {
   };
 
   // Show loading while checking authentication
-  if (loading) {
+  if (status === 'loading') {
     return (
       <AppLayout>
         <div className="container mx-auto px-4 py-8">
@@ -226,7 +224,7 @@ export default function ManagerPage() {
 
 
   // Show access denied if not authenticated or not manager
-  if (!user) {
+  if (status === 'unauthenticated') {
     return (
       <AppLayout>
         <div className="container mx-auto px-4 py-8">
