@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+
 import Attendance from '@/models/Attendance';
 import dbConnect from '@/lib/dbConnect';
 import { differenceInDays, differenceInYears } from 'date-fns';
