@@ -39,7 +39,7 @@ export default function ManagerStatusPage() {
     
     if (session) {
       const userRole = (session.user?.role || '').toLowerCase();
-      const allowedRoles = ['manager', 'ceo', 'co-founder'];
+      const allowedRoles = ['manager', 'ceo', 'co-founder', 'cfo'];
       if (!allowedRoles.includes(userRole)) {
         router.push('/access-denied');
         return;

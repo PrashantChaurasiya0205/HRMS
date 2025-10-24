@@ -15,10 +15,10 @@ export async function GET(request: NextRequest) {
     }
 
     const userRole = (session.user.role || '').toLowerCase();
-    const allowedRoles = ['manager', 'ceo', 'co-founder'];
+    const allowedRoles = ['manager', 'ceo', 'co-founder', 'cfo'];
     
     if (!userRole || !allowedRoles.includes(userRole)) {
-      return NextResponse.json({ error: 'Access denied. Manager/CEO/Co-founder role required.' }, { status: 403 });
+      return NextResponse.json({ error: 'Access denied. Manager/CEO/Co-founder/CFO role required.' }, { status: 403 });
     }
 
     await dbConnect();
@@ -63,10 +63,10 @@ export async function POST(request: NextRequest) {
     }
 
     const userRole = (session.user.role || '').toLowerCase();
-    const allowedRoles = ['manager', 'ceo', 'co-founder'];
+    const allowedRoles = ['manager', 'ceo', 'co-founder', 'cfo'];
     
     if (!userRole || !allowedRoles.includes(userRole)) {
-      return NextResponse.json({ error: 'Access denied. Manager/CEO/Co-founder role required.' }, { status: 403 });
+      return NextResponse.json({ error: 'Access denied. Manager/CEO/Co-founder/CFO role required.' }, { status: 403 });
     }
 
     const { action, ...data } = await request.json();

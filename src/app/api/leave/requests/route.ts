@@ -36,7 +36,7 @@ export async function DELETE(request: NextRequest) {
 
     // Check if user is manager, CEO, or Co-founder
     const userRole = (session.user?.role || '').toLowerCase();
-    const allowedRoles = ['manager', 'ceo', 'co-founder'];
+    const allowedRoles = ['manager', 'ceo', 'co-founder', 'cfo'];
     
     if (!allowedRoles.includes(userRole)) {
       return NextResponse.json({ error: 'Access denied. Manager role required.' }, { status: 403 });

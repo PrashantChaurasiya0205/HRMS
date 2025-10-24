@@ -49,7 +49,7 @@ export default function ManagerSettingsPage() {
     if (!session) return;
     
     const userRole = (session.user?.role || '').toLowerCase();
-    const allowedRoles = ['manager', 'ceo', 'co-founder'];
+    const allowedRoles = ['manager', 'ceo', 'co-founder', 'cfo'];
     
     if (!allowedRoles.includes(userRole)) {
       router.push(`/access-denied?redirect=${window.location.pathname}`);

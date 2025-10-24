@@ -8,9 +8,9 @@ export default withAuth(
 
     // Check if user is trying to access manager/admin pages
     if (pathname.startsWith('/manager') || pathname.startsWith('/api/admin')) {
-      // Allow access only for manager, CEO, and Co-founder roles (case-insensitive)
+      // Allow access only for manager, CEO, Co-founder, and CFO roles (case-insensitive)
       const userRole = (token?.role || '').toLowerCase();
-      const allowedRoles = ['manager', 'ceo', 'co-founder'];
+      const allowedRoles = ['manager', 'ceo', 'co-founder', 'cfo'];
       
       if (!userRole || !allowedRoles.includes(userRole)) {
         // Redirect to access denied page with original URL

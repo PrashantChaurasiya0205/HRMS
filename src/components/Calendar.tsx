@@ -15,9 +15,10 @@ interface Holiday {
 
 interface CalendarProps {
   isManager?: boolean;
+  canManageCalendar?: boolean;
 }
 
-export default function Calendar({ isManager = false }: CalendarProps) {
+export default function Calendar({ isManager = false, canManageCalendar = false }: CalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [loading, setLoading] = useState(true);
@@ -161,7 +162,7 @@ export default function Calendar({ isManager = false }: CalendarProps) {
           >
             <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
-          {isManager && (
+          {canManageCalendar && (
             <button
               onClick={() => {
                 setEditingHoliday(null);
@@ -246,7 +247,7 @@ export default function Calendar({ isManager = false }: CalendarProps) {
                   </div>
                 </div>
               </div>
-              {isManager && (
+              {canManageCalendar && (
                 <div className="flex items-center space-x-2 self-end sm:self-auto">
                   <button
                     onClick={() => handleEdit(holiday)}
@@ -267,8 +268,8 @@ export default function Calendar({ isManager = false }: CalendarProps) {
         </div>
       </div>
 
-      {/* Add/Edit Modal - Only show for managers */}
-      {showModal && isManager && (
+      {/* Add/Edit Modal - Only show for users with calendar management permissions */}
+      {showModal && canManageCalendar && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4">

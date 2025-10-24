@@ -6,7 +6,9 @@ import { useSession } from 'next-auth/react';
 
 export default function CalendarPage() {
   const { data: session, status } = useSession();
-  const isManager = session?.user?.role === 'manager';
+  const userRole = (session?.user?.role || '').toLowerCase();
+  const isManager = userRole === 'manager';
+  const canManageCalendar = ['manager', 'ceo', 'co-founder', 'cfo'].includes(userRole);
 
   return (
     <AppLayout>
@@ -15,12 +17,12 @@ export default function CalendarPage() {
         <div className="text-center mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-2">Company Calendar</h1>
           <p className="text-sm sm:text-base lg:text-lg text-gray-600">
-            {isManager ? 'Manage holidays and company events' : 'View company holidays and events'}
+            {canManageCalendar ? 'Manage holidays and company events' : 'View company holidays and events'}
           </p>
         </div>
 
         {/* Calendar Component */}
-        <Calendar isManager={isManager} />
+        <Calendar isManager={isManager} canManageCalendar={canManageCalendar} />
       </div>
     </AppLayout>
   );

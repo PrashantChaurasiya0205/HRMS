@@ -27,7 +27,7 @@ export default function Sidebar() {
 
   const isActive = (path: string) => pathname === path;
   const userRole = (session?.user?.role || '').toLowerCase();
-  const isManager = ['manager', 'ceo', 'co-founder'].includes(userRole);
+  const isManager = ['manager', 'ceo', 'co-founder', 'cfo'].includes(userRole);
   const isCEO = userRole === 'ceo';
 
   const handleLogout = () => {

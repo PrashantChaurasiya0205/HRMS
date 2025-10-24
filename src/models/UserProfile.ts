@@ -11,7 +11,7 @@ export interface IUserProfile extends Document {
   employeeId?: string;
   hireDate?: string; // YYYY-MM-DD format
   address?: string;
-  role: 'employee' | 'manager'; // User role for access control
+  role: 'employee' | 'intern' | 'hr' | 'manager' | 'co-founder' | 'ceo' | 'cfo'; // User role for access control
   leaveBalance: {
     sick: number;
     vacation: number;
@@ -38,7 +38,7 @@ const userProfileSchema: Schema = new Schema({
   employeeId: { type: String },
   hireDate: { type: String },
   address: { type: String },
-  role: { type: String, enum: ['employee', 'manager'], default: 'employee' },
+  role: { type: String, enum: ['employee', 'intern', 'hr', 'manager', 'co-founder', 'ceo', 'cfo'], default: 'employee' },
   leaveBalance: {
     sick: { type: Number, default: 10 },
     vacation: { type: Number, default: 20 },

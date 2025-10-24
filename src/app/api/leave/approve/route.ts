@@ -15,7 +15,7 @@ export async function PATCH(request: NextRequest) {
 
     // Check if user is manager, CEO, or Co-founder (case-insensitive)
     const userRole = (session.user.role || '').toLowerCase();
-    const allowedRoles = ['manager', 'ceo', 'co-founder'];
+    const allowedRoles = ['manager', 'ceo', 'co-founder', 'cfo'];
     
     if (!userRole || !allowedRoles.includes(userRole)) {
       return NextResponse.json({ error: 'Access denied. Manager/CEO/Co-founder role required.' }, { status: 403 });
