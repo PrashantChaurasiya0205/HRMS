@@ -8,7 +8,7 @@ import dbConnect from '@/lib/dbConnect';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -17,6 +17,7 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const resolvedParams = await params;
     const userRole = (session.user.role || '').toLowerCase();
     const allowedRoles = ['manager', 'ceo', 'co-founder', 'cfo'];
     const isManager = allowedRoles.includes(userRole);
@@ -25,10 +26,10 @@ export async function GET(
     if (!isManager) {
       // Get employee details to check if it's their own data
       let employee;
-      if (params.id.includes('@')) {
-        employee = await UserProfile.findOne({ email: params.id });
+      if (resolvedParams.id.includes('@')) {
+        employee = await UserProfile.findOne({ email: resolvedParams.id });
       } else {
-        employee = await UserProfile.findById(params.id);
+        employee = await UserProfile.findById(resolvedParams.id);
       }
       
       if (!employee || employee.email !== session.user.email) {
@@ -48,12 +49,12 @@ export async function GET(
 
     // Get employee details - handle both MongoDB ID and email
     let employee;
-    if (params.id.includes('@')) {
+    if (resolvedParams.id.includes('@')) {
       // If it's an email
-      employee = await UserProfile.findOne({ email: params.id });
+      employee = await UserProfile.findOne({ email: resolvedParams.id });
     } else {
       // If it's a MongoDB ID
-      employee = await UserProfile.findById(params.id);
+      employee = await UserProfile.findById(resolvedParams.id);
     }
     
     if (!employee) {
@@ -164,7 +165,17 @@ export async function GET(
         attendancePercentage,
         totalHours: Math.round(totalHours * 10) / 10,
         overtimeHours: Math.round(overtimeHours * 10) / 10,
-        averageDailyHours: Math.round(averageDailyHours * 10) / 10
+        averageDailyHours: Math.round(averageDailyHours * 10) / 10,
+        records: attendanceRecords.map(record => ({
+          _id: record._id,
+          date: record.date,
+          clockIn: record.clockIn,
+          clockOut: record.clockOut,
+          lunchStart: record.lunchStart,
+          lunchEnd: record.lunchEnd,
+          totalWorkingHours: record.totalWorkingHours,
+          status: record.status
+        }))
       },
       leave: {
         balance: employee.leaveBalance,

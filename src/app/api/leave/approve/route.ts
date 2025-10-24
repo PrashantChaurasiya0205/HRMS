@@ -56,8 +56,15 @@ export async function PATCH(request: NextRequest) {
 
     // If approved, deduct from user's leave balance
     if (status === 'approved') {
-      const userProfile = await UserProfile.findOne({ email: leaveRequest.userId });
+      let userProfile = await UserProfile.findOne({ userId: leaveRequest.userId });
+      if (!userProfile) {
+        // Fallback: try to find by email
+        userProfile = await UserProfile.findOne({ email: leaveRequest.userId });
+      }
+      
       if (userProfile) {
+        console.log('Found user profile:', userProfile.email); // Debug log
+        
         // Calculate number of days
         const startDate = new Date(leaveRequest.startDate);
         const endDate = new Date(leaveRequest.endDate);
@@ -65,6 +72,9 @@ export async function PATCH(request: NextRequest) {
         
         // Deduct from appropriate leave type
         const leaveType = leaveRequest.leaveType;
+        console.log('Leave type:', leaveType, 'Days:', daysDiff); // Debug log
+        console.log('Before balance:', userProfile.leaveBalance); // Debug log
+        
         if (leaveType === 'work-from-home') {
           userProfile.leaveBalance.workFromHome -= daysDiff;
         } else if (leaveType === 'sick') {
@@ -84,7 +94,12 @@ export async function PATCH(request: NextRequest) {
         userProfile.leaveBalance.personal = Math.max(0, userProfile.leaveBalance.personal);
         userProfile.leaveBalance.emergency = Math.max(0, userProfile.leaveBalance.emergency);
         
+        console.log('After balance:', userProfile.leaveBalance); // Debug log
+        
         await userProfile.save();
+        console.log('User profile saved successfully'); // Debug log
+      } else {
+        console.log('User profile not found for userId:', leaveRequest.userId); // Debug log
       }
     }
 
