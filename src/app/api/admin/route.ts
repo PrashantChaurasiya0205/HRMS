@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
 
     const userRole = (session.user.role || '').toLowerCase();
     const allowedRoles = ['manager', 'ceo', 'co-founder'];
-    
+    // heck if user has one of the allowed roles
     if (!userRole || !allowedRoles.includes(userRole)) {
       return NextResponse.json({ error: 'Access denied. Manager/CEO/Co-founder role required.' }, { status: 403 });
     }
